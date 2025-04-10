@@ -9,6 +9,8 @@ import aiohttp
 from tg_bot.configs.logger_config import get_logger
 from aiogram.types import Message
 
+
+
 logger = get_logger()
 DJANGO_API_URL = os.getenv("KIBER_API_URL")
 
