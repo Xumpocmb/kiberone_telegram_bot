@@ -186,3 +186,122 @@ async def get_answer_by_question_id(question_id: int) -> dict | None:
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")
         return None
+
+
+async def get_erip_payment_help() -> dict | None:
+    """
+    Запрос инструкции по оплате через ЕРИП.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_erip_payment_help/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Инструкция не найдена: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении инструкции: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_partner_categories() -> list | None:
+    """
+    Получение списка всех категорий партнеров.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_partner_categories/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info("Категории партнеров успешно получены.")
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении категорий: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении категорий: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_partners_by_category(category_id: int) -> list | None:
+    """
+    Получение списка партнеров и их бонусов по ID категории.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_partners_by_category/{category_id}/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Партнеры категории {category_id} успешно получены."
+                        )
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении партнеров: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении партнеров: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_partner_by_id(partner_id: int) -> dict | None:
+    """
+    Получение информации о партнере по его ID.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_partner_by_id/{partner_id}/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Информация о партнере {partner_id} успешно получена."
+                        )
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Ошибка при получении партнера: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении партнера: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None

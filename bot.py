@@ -1,4 +1,3 @@
-
 import asyncio
 import os
 
@@ -13,6 +12,9 @@ from tg_bot.configs.logger_config import get_logger
 
 from tg_bot.handlers.inline_handlers.main_menu import main_menu_router
 from tg_bot.handlers.inline_handlers.faq import faq_router
+from tg_bot.handlers.inline_handlers.erip import erip_router
+from tg_bot.handlers.inline_handlers.partner import partners_router
+
 
 logger = get_logger()
 load_dotenv()
@@ -54,6 +56,8 @@ async def main():
         handler_start.start_router,
         main_menu_router,
         faq_router,
+        erip_router,
+        partners_router,
     )
 
     try:
