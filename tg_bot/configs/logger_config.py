@@ -9,7 +9,10 @@ LOGGER_LEVEL = os.getenv("LOGGER_LEVEL")
 logging.basicConfig(
     level=logging.DEBUG if LOGGER_LEVEL == "DEBUG" else logging.INFO,
     format="%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("bot.log", mode="w", encoding='utf-8')],
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("bot.log", mode="w", encoding="utf-8"),
+    ],
 )
 logger = logging.getLogger(__name__)
 

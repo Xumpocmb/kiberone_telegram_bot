@@ -15,11 +15,11 @@ start_router: Router = Router()
 
 DJANGO_API_URL = os.getenv("KIBER_API_URL")
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 
 # ХЕНДЛЕРЫ СТАРТ
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 
 @start_router.message(IsAdmin(), CommandStart())
 async def admin_start_handler(message: Message) -> None:
@@ -58,14 +58,17 @@ async def user_start_handler(message: Message):
                          "")
 
     find_result: dict | None = await find_user_in_django(telegram_id)
+    if find_result is None:
+        await message.answer(f"Упс.. У нас возникла ошибка при поиске в базе данных..\nПопробуйте ещё раз.")
+        return
     if find_result.get("success", False):
         logger.info("Пользователь найден в БД. Обновим данные")
         db_user: dict | None = find_result.get("user", None)
         if db_user:
             await handle_existing_user(message, db_user)
     else:
+        logger.info("Пользователь не найден в БД. Запрашиваем контакт")
         greeting = f"Привет, {message.from_user.username}!\n{formatted_message}"
-        logger.debug("Запрашиваю у пользователя контакт..")
         filename = "files/contact_image.png"
         file = types.FSInputFile(filename)
         contact_keyboard = ReplyKeyboardMarkup(
@@ -133,10 +136,13 @@ async def handle_contact(message: Message):
 
     # Поиск в БД Django
     find_result: dict | None = await find_user_in_django(telegram_id)
-    if not find_result:
+    print(find_result)
+    if find_result.get("success", False) is False:
         registration_result: dict = await register_user_in_db(telegram_id, username, phone_number)
-        if registration_result and registration_result.get("success"):
+        print(registration_result)
+        if registration_result.get("success", False):
             db_user: dict | None = registration_result.get("user", None)
+            print(db_user)
             await message.answer("Ваш контакт сохранен! 😊\nМы подготавливаем для Вас данные.\nЕще пару секундочек..")
         else:
             await message.answer(f"Упс.. У нас возникла ошибка при регистрации..\nПопробуйте ещё раз.")
@@ -144,7 +150,8 @@ async def handle_contact(message: Message):
     else:
         db_user: dict | None = find_result.get("user", None)
 
-    if not isinstance(db_user, dict) or "id" not in db_user:
+    if not db_user or not isinstance(db_user, dict) or "id" not in db_user:
+        logger.error(f"Некорректные данные пользователя: {db_user}")
         await message.answer("Ошибка: некорректные данные пользователя.")
         return
 
@@ -175,11 +182,11 @@ async def handle_contact(message: Message):
             "Все готово к работе!⚡️\nВот мое главное меню:", reply_markup=get_lead_keyboard()
         )
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 
 # ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ОБРАБОТКИ ИНФОРМАЦИИ
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 
 # Поиск в црм, создание и обновление в БД
 async def handle_crm_lookup(message: Message, phone_number: str, db_user: dict):
@@ -256,27 +263,36 @@ def parse_crm_response(register_response: dict) -> list:
     return crm_items
 
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 
 # ОТПРАВКА ЗАПРОСОВ НА АПИ
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+
 
 async def find_user_in_django(telegram_id) -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
-            data: dict = {"telegram_id": telegram_id}
-            async with session.post(f"{DJANGO_API_URL}api/find_user_in_db/", json=data) as response:
+            data = {"telegram_id": telegram_id}
+            async with session.post(
+                f"{DJANGO_API_URL}api/find_user_in_db/", json=data
+            ) as response:
                 if response.status == 200:
-                    response_data: dict = await response.json()
-                    if response_data.get("success"):
-                        logger.info(f"Пользователь найден в БД.")
+                    response_data = await response.json()
+                    if response_data.get("success") and "user" in response_data:
+                        logger.info(
+                            f"Пользователь найден в БД"
+                        )
                         return response_data
                     else:
-                        logger.info(f"Пользователь с telegram_id {telegram_id} не найден в БД.")
-                        return None
+                        logger.info(
+                            f"Пользователь с telegram_id {telegram_id} не найден в БД."
+                        )
+                        return response_data
                 else:
-                    logger.error(f"Ошибка при поиске пользователя в БД: {response.json()}")
+                    logger.error(
+                        f"Ошибка при поиске пользователя в БД: {await response.json()}"
+                    )
                     return None
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к БД: {e}")
@@ -284,29 +300,31 @@ async def find_user_in_django(telegram_id) -> dict | None:
 
 
 async def register_user_in_db(telegram_id: int, username: str, phone_number: str) -> dict | None:
-    """
-    Регистрация нового пользователя в базе данных Django через API.
-    """
     url = f"{DJANGO_API_URL}api/register_user_in_db/"
     data = {
         "telegram_id": str(telegram_id),
         "username": username,
         "phone_number": phone_number,
     }
-
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data) as response:
-                if response.status == 201 or response.status == 200:
-                    response_data: dict = await response.json()
-                    if response_data.get("success"):
-                        logger.info("Пользователь успешно зарегистрирован в базе данных Django.")
+                if response.status in [200, 201]:
+                    response_data = await response.json()
+                    if response_data.get("success") and "user" in response_data:
+                        logger.info(
+                            "Пользователь успешно зарегистрирован в базе данных Django."
+                        )
                         return response_data
                     else:
-                        logger.error(f"Ошибка регистрации пользователя: {response_data.get('message')}")
+                        logger.error(
+                            f"Ошибка регистрации пользователя: {response_data.get('message')}"
+                        )
                         return None
                 else:
-                    error_message = (await response.json()).get("message", "Неизвестная ошибка")
+                    error_message = (await response.json()).get(
+                        "message", "Неизвестная ошибка"
+                    )
                     logger.error(f"Ошибка регистрации пользователя: {error_message}")
                     return None
     except Exception as e:
