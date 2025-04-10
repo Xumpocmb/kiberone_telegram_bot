@@ -6,6 +6,13 @@ from aiogram import Router, F, types
 from aiogram.filters import CommandStart
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
+from tg_bot.keyboards.inline_keyboards.inline_keyboard_main_menu import (
+    main_menu_inline_keyboard_for_client,
+    main_menu_inline_keyboard_for_lead_with_group,
+    main_menu_inline_keyboard_for_lead_without_group,
+    test_keyboard
+)
+
 from tg_bot.filters.filter_admin import IsAdmin
 from tg_bot.configs.logger_config import get_logger
 
@@ -104,15 +111,16 @@ async def handle_existing_user(message, db_user: dict):
 
     # Отправляем клавиатуру в зависимости от статуса
     if user_status == "2":  # Клиент
-        await message.answer("Вы клиент!", reply_markup=get_client_keyboard())
+        await message.answer("Вы клиент!", reply_markup=main_menu_inline_keyboard_for_client)
     elif user_status == "1":  # Lead with group
         await message.answer(
             "Вы потенциальный клиент с группой!",
-            reply_markup=get_lead_with_group_keyboard(),
+            reply_markup=main_menu_inline_keyboard_for_lead_with_group,
         )
     else:  # Lead
+        test_keyboard()
         await message.answer(
-            "Вы потенциальный клиент!", reply_markup=get_lead_keyboard()
+            "Вы потенциальный клиент!", reply_markup=main_menu_inline_keyboard_for_lead_without_group
         )
 
 
@@ -384,26 +392,3 @@ async def create_or_update_clients_from_crm(db_user, crm_items: list) -> dict | 
                 error_message = (await response.json()).get("message", "Неизвестная ошибка")
                 logger.error(f"Ошибка при обновлении клиентов: {error_message}")
                 return None
-
-# Клавиатура для клиентов
-def get_client_keyboard():
-    keyboard = [
-        [KeyboardButton(text="Клиентская клавиатура")],
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-
-# Клавиатура для Lead с группой
-def get_lead_with_group_keyboard():
-    keyboard = [
-        [KeyboardButton(text="Клавиатура для Lead с группой")],
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-
-# Клавиатура для Lead
-def get_lead_keyboard():
-    keyboard = [
-        [KeyboardButton(text="Клавиатура для Lead")],
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
