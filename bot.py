@@ -12,6 +12,7 @@ from tg_bot.configs.set_commands import set_main_menu
 from tg_bot.configs.logger_config import get_logger
 
 from tg_bot.handlers.inline_handlers.main_menu import main_menu_router
+from tg_bot.handlers.inline_handlers.faq import faq_router
 
 logger = get_logger()
 load_dotenv()
@@ -52,6 +53,7 @@ async def main():
     dp.include_routers (
         handler_start.start_router,
         main_menu_router,
+        faq_router,
     )
 
     try:

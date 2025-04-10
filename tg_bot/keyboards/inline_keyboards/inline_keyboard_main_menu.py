@@ -8,7 +8,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 
 button_1: InlineKeyboardButton = InlineKeyboardButton(
-    text="Вопрос & Ответ", callback_data="FAQ"
+    text="Вопрос & Ответ", callback_data="faq"
 )
 
 button_2: InlineKeyboardButton = InlineKeyboardButton(
@@ -111,4 +111,3 @@ main_menu_inline_keyboard_for_lead_without_group: InlineKeyboardMarkup = (
         ]
     )
 )
-

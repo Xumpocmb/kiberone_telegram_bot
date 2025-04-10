@@ -10,7 +10,6 @@ from tg_bot.configs.logger_config import get_logger
 from aiogram.types import Message
 
 
-
 logger = get_logger()
 DJANGO_API_URL = os.getenv("KIBER_API_URL")
 
@@ -133,3 +132,57 @@ async def create_or_update_clients_from_crm(db_user, crm_items: list) -> dict | 
                 )
                 logger.error(f"Ошибка при обновлении клиентов: {error_message}")
                 return None
+
+
+async def get_all_questions() -> list | None:
+    """
+    Получает список всех вопросов из API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{DJANGO_API_URL}api/questions/") as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении вопросов: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении вопросов: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_answer_by_question_id(question_id: int) -> dict | None:
+    """
+    Получает ответ на вопрос по ID из API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/answer_by_question/{question_id}/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Ошибка при получении ответа: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении ответа: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
