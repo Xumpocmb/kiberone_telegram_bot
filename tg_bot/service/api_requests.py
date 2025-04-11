@@ -14,7 +14,7 @@ logger = get_logger()
 DJANGO_API_URL = os.getenv("KIBER_API_URL")
 
 
-async def find_user_in_django(telegram_id) -> dict | None:
+async def find_user_in_django(telegram_id: int) -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
             data = {"telegram_id": telegram_id}
@@ -23,9 +23,14 @@ async def find_user_in_django(telegram_id) -> dict | None:
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
-                    if response_data.get("success") and "user" in response_data:
-                        logger.info(f"Пользователь найден в БД")
-                        return response_data
+                    if response_data.get("success"):
+                        user = response_data.get("user", {})
+                        user_id = user.get("id")
+                        # Запрашиваем клиентов для пользователя
+                        clients = await get_clients_by_user(user_id)
+                        user["clients"] = clients or []
+                        logger.info(f"Пользователь и его клиенты успешно получены.")
+                        return {"success": True, "user": user}
                     else:
                         logger.info(
                             f"Пользователь с telegram_id {telegram_id} не найден в БД."
@@ -38,6 +43,37 @@ async def find_user_in_django(telegram_id) -> dict | None:
                     return None
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к БД: {e}")
+        return None
+
+
+async def get_clients_by_user(user_id: int) -> list | None:
+    """
+    Получение списка клиентов для указанного пользователя.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_clients_by_user/{user_id}/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Клиенты для пользователя {user_id} успешно получены."
+                        )
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении клиентов: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении клиентов: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
         return None
 
 
@@ -300,6 +336,127 @@ async def get_partner_by_id(partner_id: int) -> dict | None:
                 else:
                     logger.error(
                         f"Ошибка при получении партнера: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_client_bonuses() -> list | None:
+    """
+    Получение списка всех бонусов для клиентов.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_client_bonuses/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info("Бонусы успешно получены.")
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении бонусов: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении бонусов: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_bonus_by_id(bonus_id: int) -> dict | None:
+    """
+    Получение информации о бонусе по его ID.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_bonus_by_id/{bonus_id}/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(f"Информация о бонусе {bonus_id} успешно получена.")
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Ошибка при получении бонуса: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении бонуса: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_sales_managers_by_branch(branch_id: int) -> list | None:
+    """
+    Получение списка менеджеров по продажам для указанного филиала.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_sales_managers_by_branch/{branch_id}/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Менеджеры для филиала {branch_id} успешно получены."
+                        )
+                        return response_data.get("data", [])
+                    else:
+                        error_message = response_data.get(
+                            "message", "Неизвестная ошибка"
+                        )
+                        logger.error(
+                            f"Ошибка при получении менеджеров: {error_message}"
+                        )
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(f"Ошибка при получении менеджеров: {error_details}")
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_social_links_from_api() -> list | None:
+    """
+    Получение списка социальных ссылок через API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{DJANGO_API_URL}api/get_social_links/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info("Социальные ссылки успешно получены.")
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении социальных ссылок: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(
+                        f"Ошибка при получении социальных ссылок: {error_details}"
                     )
                     return None
     except Exception as e:

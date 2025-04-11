@@ -20,7 +20,7 @@ button_4: InlineKeyboardButton = InlineKeyboardButton(
 )
 
 button_5: InlineKeyboardButton = InlineKeyboardButton(
-    text="Бонусы для клиентов", callback_data="clients_bonuses"
+    text="Бонусы для клиентов", callback_data="client_bonuses"
 )
 
 button_6: InlineKeyboardButton = InlineKeyboardButton(
@@ -32,7 +32,7 @@ button_7: InlineKeyboardButton = InlineKeyboardButton(
 )
 
 button_8: InlineKeyboardButton = InlineKeyboardButton(
-    text="Будь в тренде! (Inst, Tg)", callback_data="links_menu"
+    text="Будь в тренде! (Inst, Tg)", callback_data="social_links"
 )
 
 button_9: InlineKeyboardButton = InlineKeyboardButton(
@@ -44,7 +44,7 @@ button_10: InlineKeyboardButton = InlineKeyboardButton(
 )
 
 button_11: InlineKeyboardButton = InlineKeyboardButton(
-    text="Контакт Менеджера", callback_data="lead_contact_manager_lead"
+    text="Контакт Менеджера", callback_data="sales_managers"
 )
 
 button_12: InlineKeyboardButton = InlineKeyboardButton(
