@@ -17,6 +17,7 @@ from tg_bot.handlers.inline_handlers.partner import partners_router
 from tg_bot.handlers.inline_handlers.bonus import bonuses_router
 from tg_bot.handlers.inline_handlers.sales_manager import sales_manager_router
 from tg_bot.handlers.inline_handlers.social_links import social_router
+from tg_bot.handlers.inline_handlers.trial_lesson import trial_lesson_router
 
 
 logger = get_logger()
@@ -64,6 +65,7 @@ async def main():
         bonuses_router,
         sales_manager_router,
         social_router,
+        trial_lesson_router,
     )
 
     try:

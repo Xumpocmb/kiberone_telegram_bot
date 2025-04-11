@@ -462,3 +462,70 @@ async def get_social_links_from_api() -> list | None:
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")
         return None
+
+
+async def get_user_trial_lessons(user_crm_id: int, branch_id: int) -> dict | None:
+    """
+    Получение пробных уроков пользователя через API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            data = {
+                "user_crm_id": user_crm_id,
+                "branch_id": branch_id,
+                "lesson_status": 1,  # Запланированные уроки
+                "lesson_type": 3,  # Пробные уроки
+            }
+            async with session.post(
+                f"{DJANGO_API_URL}api/get_user_lessons/", json=data
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Пробные уроки успешно получены для user_crm_id={user_crm_id}"
+                        )
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Ошибка при получении пробных уроков: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(
+                        f"Ошибка при получении пробных уроков: {error_details}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_location_info(location_id: int) -> dict | None:
+    """
+    Получение информации о локации через API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            url = f"{DJANGO_API_URL}api/get_location_by_id/{location_id}/"
+            async with session.get(url) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Локация с room_id={location_id} успешно получена."
+                        )
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Ошибка при получении локации: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(f"Ошибка при получении локации: {error_details}")
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
