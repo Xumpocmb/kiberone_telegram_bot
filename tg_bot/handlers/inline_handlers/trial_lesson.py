@@ -27,9 +27,7 @@ async def user_trial_handler(callback: CallbackQuery):
     Обработчик кнопки "Пробное занятие".
     """
     user_id = callback.from_user.id
-    logger.debug(
-        f"Начало обработки запроса на пробное занятие от пользователя с ID: {user_id}"
-    )
+    logger.debug(f"Начало обработки запроса на пробное занятие от пользователя с ID: {user_id}")
 
     try:
         await callback.message.answer("Ожидайте пожалуйста, проверяю Ваше расписание..")

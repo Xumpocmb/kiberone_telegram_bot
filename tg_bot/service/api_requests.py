@@ -14,7 +14,7 @@ logger = get_logger()
 DJANGO_API_URL = os.getenv("KIBER_API_URL")
 
 
-async def find_user_in_django(telegram_id: int) -> dict | None:
+async def find_user_in_django(telegram_id: str) -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
             data = {"telegram_id": telegram_id}
@@ -77,12 +77,10 @@ async def get_clients_by_user(user_id: int) -> list | None:
         return None
 
 
-async def register_user_in_db(
-    telegram_id: int, username: str, phone_number: str
-) -> dict | None:
+async def register_user_in_db(telegram_id: str, username: str, phone_number: str) -> dict | None:
     url = f"{DJANGO_API_URL}api/register_user_in_db/"
     data = {
-        "telegram_id": str(telegram_id),
+        "telegram_id": telegram_id,
         "username": username,
         "phone_number": phone_number,
     }
@@ -372,7 +370,7 @@ async def get_client_bonuses() -> list | None:
         return None
 
 
-async def get_bonus_by_id(bonus_id: int) -> dict | None:
+async def get_bonus_by_id(bonus_id: str) -> dict | None:
     """
     Получение информации о бонусе по его ID.
     """
@@ -502,6 +500,44 @@ async def get_user_trial_lessons(user_crm_id: int, branch_id: int) -> dict | Non
         return None
 
 
+async def get_user_group_lessons(user_crm_id: int, branch_id: int) -> dict | None:
+    """
+    Получение пробных уроков пользователя через API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            data = {
+                "user_crm_id": user_crm_id,
+                "branch_id": branch_id,
+                "lesson_status": 1,  # Запланированные уроки
+                "lesson_type": 2,  # Пробные уроки
+            }
+            async with session.post(
+                f"{DJANGO_API_URL}api/get_user_lessons/", json=data
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Пробные уроки успешно получены для user_crm_id={user_crm_id}"
+                        )
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Ошибка при получении пробных уроков: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(
+                        f"Ошибка при получении пробных уроков: {error_details}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
 async def get_location_info(location_id: int) -> dict | None:
     """
     Получение информации о локации через API.
@@ -525,6 +561,31 @@ async def get_location_info(location_id: int) -> dict | None:
                 else:
                     error_details = await response.json()
                     logger.error(f"Ошибка при получении локации: {error_details}")
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_manager_by_room_id(room_id: int) -> dict | None:
+    """
+    Получение менеджера по room_id через API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            url = f"{DJANGO_API_URL}api/get_manager_by_room_id/{room_id}/"
+            async with session.get(url) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(f"Менеджер для room_id={room_id} успешно получен.")
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(f"Ошибка при получении менеджера: {response_data.get('message')}")
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(f"Ошибка при получении менеджера: {error_details}")
                     return None
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")

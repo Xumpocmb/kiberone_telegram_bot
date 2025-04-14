@@ -43,10 +43,6 @@ button_10: InlineKeyboardButton = InlineKeyboardButton(
     text="Наши Партнёры", callback_data="partner_without_promocodes"
 )
 
-button_11: InlineKeyboardButton = InlineKeyboardButton(
-    text="Контакт Менеджера", callback_data="sales_managers"
-)
-
 button_12: InlineKeyboardButton = InlineKeyboardButton(
     text="Расписание занятий", callback_data="user_scheduler"
 )
@@ -67,7 +63,7 @@ button_16: InlineKeyboardButton = InlineKeyboardButton(
     text="Личный кабинет KIBERhub",
     web_app=WebAppInfo(
         # url=f"https://{os.getenv('NGROK') if os.getenv('DEBUG_WEB_APP') == 'True' else os.getenv('DOMAIN')}/kiberclub/index/"
-        url=f"/kiberclub/index/"
+        url=f"https://www.google.by/?hl=ru"
     ),
 )
 
@@ -104,7 +100,7 @@ main_menu_inline_keyboard_for_lead_without_group: InlineKeyboardMarkup = (
             [button_1],
             [button_17],
             [button_5],
-            [button_11],
+            [button_7],
             [button_8],
             [button_13],
             [button_14],

@@ -21,11 +21,10 @@ async def bonuses_handler(callback: CallbackQuery):
         await callback.answer()
         return
 
-    # Создаем клавиатуру с бонусами
     keyboard = InlineKeyboardBuilder()
     for bonus in bonuses:
         keyboard.button(text=bonus["bonus"], callback_data=f"bonus_{bonus['id']}")
-    keyboard.button(text="Назад", callback_data="inline_main_menu")
+    keyboard.button(text="<< Главное меню", callback_data="inline_main_menu")
     keyboard.adjust(1)
 
     await callback.message.answer("Ваши бонусы:", reply_markup=keyboard.as_markup())
@@ -38,8 +37,8 @@ async def handle_bonus_selection(callback: CallbackQuery):
     Обработчик выбора бонуса.
     Отправляет информацию о бонусе.
     """
-    bonus_id = callback.data.split("_")[-1]
-    bonus = await get_bonus_by_id(bonus_id)  # Реализуйте функцию get_bonus_by_id
+    bonus_id: str = str(callback.data.split("_")[-1])
+    bonus = await get_bonus_by_id(bonus_id)
     if not bonus:
         await callback.message.answer("Информация о бонусе не найдена.")
         await callback.answer()
@@ -50,9 +49,8 @@ async def handle_bonus_selection(callback: CallbackQuery):
     <b>Описание:</b> {bonus['description']}
     """
 
-    # Создаем клавиатуру с кнопкой "Назад"
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text="Назад", callback_data="client_bonuses")
+    keyboard.button(text="<< Назад", callback_data="client_bonuses")
     keyboard.adjust(1)
 
     await callback.message.answer(formatted_text, reply_markup=keyboard.as_markup())

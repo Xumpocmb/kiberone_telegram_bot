@@ -15,7 +15,7 @@ from tg_bot.handlers.inline_handlers.faq import faq_router
 from tg_bot.handlers.inline_handlers.erip import erip_router
 from tg_bot.handlers.inline_handlers.partner import partners_router
 from tg_bot.handlers.inline_handlers.bonus import bonuses_router
-from tg_bot.handlers.inline_handlers.sales_manager import sales_manager_router
+from tg_bot.handlers.inline_handlers.kiberone_manager import contact_manager_router
 from tg_bot.handlers.inline_handlers.social_links import social_router
 from tg_bot.handlers.inline_handlers.trial_lesson import trial_lesson_router
 
@@ -63,7 +63,7 @@ async def main():
         erip_router,
         partners_router,
         bonuses_router,
-        sales_manager_router,
+        contact_manager_router,
         social_router,
         trial_lesson_router,
     )

@@ -44,7 +44,7 @@ async def menu_handler(message: Message):
         )
         return
 
-    await message.answer("Вот ваше главное меню:", reply_markup=keyboard)
+    await message.answer("Вот мое меню 🤗:", reply_markup=keyboard)
 
 
 @main_menu_router.callback_query(F.data == "inline_main_menu")
