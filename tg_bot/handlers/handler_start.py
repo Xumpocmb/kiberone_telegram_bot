@@ -1,7 +1,7 @@
 import json
-import re
 import os
-import aiohttp
+import re
+
 from aiogram import Router, F, types
 from aiogram.filters import CommandStart
 from aiogram.types import (
@@ -11,14 +11,13 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
+from tg_bot.configs.logger_config import get_logger
+from tg_bot.filters.filter_admin import IsAdmin
 from tg_bot.keyboards.inline_keyboards.inline_keyboard_main_menu import (
     main_menu_inline_keyboard_for_client,
     main_menu_inline_keyboard_for_lead_with_group,
     main_menu_inline_keyboard_for_lead_without_group,
 )
-
-from tg_bot.filters.filter_admin import IsAdmin
-from tg_bot.configs.logger_config import get_logger
 from tg_bot.service.api_requests import (
     create_or_update_clients_from_crm,
     find_user_in_crm,
@@ -33,17 +32,16 @@ start_router: Router = Router()
 
 DJANGO_API_URL = os.getenv("KIBER_API_URL")
 
-
 USER_STATUS_CLIENT = "2"
 USER_STATUS_LEAD_WITH_GROUP = "1"
 USER_STATUS_LEAD_WITHOUT_GROUP = "0"
-
 
 keyboards_by_status = {
     USER_STATUS_CLIENT: main_menu_inline_keyboard_for_client,
     USER_STATUS_LEAD_WITH_GROUP: main_menu_inline_keyboard_for_lead_with_group,
     USER_STATUS_LEAD_WITHOUT_GROUP: main_menu_inline_keyboard_for_lead_without_group,
 }
+
 
 # -----------------------------------------------------------
 
