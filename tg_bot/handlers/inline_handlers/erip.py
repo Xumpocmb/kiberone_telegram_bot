@@ -8,7 +8,7 @@ logger = get_logger()
 erip_router = Router()
 
 
-@erip_router.callback_query(F.data == "erip_payment")
+@erip_router.callback_query(F.data == "erip_info")
 async def process_button_erip_press(callback: CallbackQuery):
     """
     Обработчик нажатия на кнопку "Инструкция по оплате".
