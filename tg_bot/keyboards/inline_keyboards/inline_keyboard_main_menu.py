@@ -6,70 +6,27 @@ load_dotenv()
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
-
-button_1: InlineKeyboardButton = InlineKeyboardButton(
-    text="Вопрос & Ответ", callback_data="faq"
-)
-
-button_2: InlineKeyboardButton = InlineKeyboardButton(
-    text="Оплатить", callback_data="erip_payment-service"
-)
-
-button_4: InlineKeyboardButton = InlineKeyboardButton(
-    text="Платформа английского Lim English", callback_data="english_platform"
-)
-
-button_5: InlineKeyboardButton = InlineKeyboardButton(
-    text="Бонусы для клиентов", callback_data="client_bonuses"
-)
-
-button_6: InlineKeyboardButton = InlineKeyboardButton(
-    text="Наши Партнёры", callback_data="partners_list"
-)
-
-button_7: InlineKeyboardButton = InlineKeyboardButton(
-    text="Ваш менеджер KIBERone", callback_data="contact_manager"
-)
-
-button_8: InlineKeyboardButton = InlineKeyboardButton(
-    text="Будь в тренде! (Inst, Tg)", callback_data="social_links"
-)
-
-button_9: InlineKeyboardButton = InlineKeyboardButton(
-    text="Ссылки на телеграм чаты", callback_data="tg_links"
-)
-
-button_10: InlineKeyboardButton = InlineKeyboardButton(
-    text="Наши Партнёры", callback_data="partner_without_promocodes"
-)
-
-button_12: InlineKeyboardButton = InlineKeyboardButton(
-    text="Расписание занятий", callback_data="user_scheduler"
-)
-
-button_13: InlineKeyboardButton = InlineKeyboardButton(
-    text="Дата пробного занятия", callback_data="user_trial_date"
-)
-
-button_14: InlineKeyboardButton = InlineKeyboardButton(
-    text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel"
-)
-
-button_15: InlineKeyboardButton = InlineKeyboardButton(
-    text="Баланс", callback_data="crm_balance"
-)
+button_1: InlineKeyboardButton = InlineKeyboardButton(text="Вопрос & Ответ", callback_data="faq")
+button_2: InlineKeyboardButton = InlineKeyboardButton(text="Оплатить", callback_data="erip_payment-service")
+button_4: InlineKeyboardButton = InlineKeyboardButton(text="Платформа английского Lim English",callback_data="english_platform")
+button_5: InlineKeyboardButton = InlineKeyboardButton(text="Бонусы для клиентов", callback_data="client_bonuses")
+button_6: InlineKeyboardButton = InlineKeyboardButton(text="Наши Партнёры", callback_data="partners_list")
+button_7: InlineKeyboardButton = InlineKeyboardButton(text="Ваш менеджер KIBERone", callback_data="contact_manager")
+button_8: InlineKeyboardButton = InlineKeyboardButton(text="Будь в тренде! (Inst, Tg)", callback_data="social_links")
+button_9: InlineKeyboardButton = InlineKeyboardButton(text="Ссылки на телеграм чаты", callback_data="tg_links")
+button_10: InlineKeyboardButton = InlineKeyboardButton(text="Наши Партнёры", callback_data="partner_without_promocodes")
+button_12: InlineKeyboardButton = InlineKeyboardButton(text="Расписание занятий", callback_data="user_scheduler")
+button_13: InlineKeyboardButton = InlineKeyboardButton(text="Дата пробного занятия", callback_data="user_trial_date")
+button_14: InlineKeyboardButton = InlineKeyboardButton(text="Главный новостной канал KIBERone",url="https://t.me/kiberone_bel")
+button_15: InlineKeyboardButton = InlineKeyboardButton(text="Баланс", callback_data="crm_balance")
 
 button_16: InlineKeyboardButton = InlineKeyboardButton(
     text="Личный кабинет KIBERhub",
     web_app=WebAppInfo(
         # url=f"https://{os.getenv('NGROK') if os.getenv('DEBUG_WEB_APP') == 'True' else os.getenv('DOMAIN')}/kiberclub/index/"
-        url=f"https://www.google.by/?hl=ru"
-    ),
-)
+        url=f"https://www.google.by/?hl=ru"))
+button_17: InlineKeyboardButton = InlineKeyboardButton(text="Оплатить через ЕРИП", callback_data="erip_info")
 
-button_17: InlineKeyboardButton = InlineKeyboardButton(
-    text="Оплатить через ЕРИП", callback_data="erip_payment"
-)
 
 main_menu_inline_keyboard_for_client: InlineKeyboardMarkup = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -78,9 +35,7 @@ main_menu_inline_keyboard_for_client: InlineKeyboardMarkup = InlineKeyboardMarku
         [button_5],
         [button_7],
         [button_8],
-        [button_1],
-    ]
-)
+        [button_1], ])
 
 main_menu_inline_keyboard_for_lead_with_group: InlineKeyboardMarkup = (
     InlineKeyboardMarkup(
@@ -89,10 +44,7 @@ main_menu_inline_keyboard_for_lead_with_group: InlineKeyboardMarkup = (
             [button_5],
             [button_7],
             [button_8],
-            [button_1],
-        ]
-    )
-)
+            [button_1], ]))
 
 main_menu_inline_keyboard_for_lead_without_group: InlineKeyboardMarkup = (
     InlineKeyboardMarkup(
@@ -103,7 +55,4 @@ main_menu_inline_keyboard_for_lead_without_group: InlineKeyboardMarkup = (
             [button_7],
             [button_8],
             [button_13],
-            [button_14],
-        ]
-    )
-)
+            [button_14], ]))
