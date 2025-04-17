@@ -590,3 +590,34 @@ async def get_manager_by_room_id(room_id: int) -> dict | None:
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")
         return None
+
+
+
+async def get_user_balances_from_api(telegram_id: int) -> dict | None:
+    """
+    Получение баланса клиентов пользователя через API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            data = {"telegram_id": telegram_id}
+            url = f"{DJANGO_API_URL}api/get_user_balances/"
+            async with session.post(url, json=data) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(
+                            f"Балансы для telegram_id={telegram_id} успешно получены."
+                        )
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении балансов: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(f"Ошибка при получении балансов: {error_details}")
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
