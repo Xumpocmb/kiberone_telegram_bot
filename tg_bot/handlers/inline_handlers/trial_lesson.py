@@ -27,18 +27,14 @@ async def user_trial_handler(callback: CallbackQuery):
     Обработчик кнопки "Пробное занятие".
     """
     user_id = callback.from_user.id
-    logger.debug(f"Начало обработки запроса на пробное занятие от пользователя с ID: {user_id}")
 
     try:
-        await callback.message.answer("Ожидайте пожалуйста, проверяю Ваше расписание..")
-        logger.debug(f"Сообщение пользователю с ID {user_id} изменено на 'Ожидайте...'")
+        await callback.message.answer("⏳ Ожидайте пожалуйста, проверяю Ваше расписание..")
 
         # Получаем данные пользователя из Django
         user_data = await find_user_in_django(user_id)
         if not user_data or not user_data.get("success"):
-            await callback.message.answer(
-                "Ошибка: не удалось получить данные пользователя."
-            )
+            await callback.message.answer("❌ Ошибка: не удалось получить данные пользователя.")
             await callback.answer()
             return
 
@@ -56,18 +52,14 @@ async def user_trial_handler(callback: CallbackQuery):
             branch_id = client.get("branch_id")
 
             if not user_crm_id or not branch_id:
-                await callback.message.answer(
-                    "Ошибка: недостаточно данных для получения пробного занятия."
-                )
+                await callback.message.answer("❌ Ошибка: недостаточно данных для получения пробного занятия.")
                 await callback.answer()
                 return
 
             # Получаем пробные уроки
             lessons_data = await get_user_trial_lessons(user_crm_id, branch_id)
             if not lessons_data or lessons_data.get("total", 0) == 0:
-                await callback.message.answer(
-                    "У вас нет запланированных пробных занятий."
-                )
+                await callback.message.answer("У вас нет запланированных пробных занятий.")
                 await callback.answer()
                 return
 
@@ -101,11 +93,7 @@ async def user_trial_handler(callback: CallbackQuery):
 
     except Exception as e:
         logger.error(f"Ошибка при обработке запроса на пробное занятие: {e}")
-        await callback.message.answer(
-            "Произошла ошибка при обработке вашего запроса. Попробуйте позже."
-        )
+        await callback.message.answer("Произошла ошибка при обработке вашего запроса. Попробуйте позже.")
         await callback.answer()
-
-    logger.debug(
-        f"Завершение обработки запроса на пробное занятие от пользователя с ID: {user_id}"
-    )
+    finally:
+        await callback.answer()

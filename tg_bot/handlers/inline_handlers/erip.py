@@ -14,14 +14,10 @@ async def process_button_erip_press(callback: CallbackQuery):
     Обработчик нажатия на кнопку "Инструкция по оплате".
     Отправляет инструкцию по оплате через ЕРИП.
     """
-    logger.debug(
-        f"Получен запрос на обработку кнопки 'erip_payment' от пользователя {callback.from_user.id}"
-    )
-
     # Получаем инструкцию из API
     help_data = await get_erip_payment_help()
     if not help_data:
-        await callback.message.answer("Инструкция по оплате временно недоступна.")
+        await callback.message.answer("⚠️Инструкция по оплате временно недоступна.")
         await callback.answer()
         return
 
@@ -37,17 +33,14 @@ async def process_button_erip_press(callback: CallbackQuery):
     """
 
     try:
-        await callback.message.answer(
-            formatted_text, reply_markup=await get_user_keyboard(callback.from_user.id)
-        )
-        logger.info(
-            f"Отправлено сообщение пользователю {callback.from_user.id} с инструкцией по оплате через ЕРИП."
-        )
+        await callback.message.answer(formatted_text, reply_markup=await get_user_keyboard(callback.from_user.id))
+        logger.info(f"Отправлено сообщение пользователю {callback.from_user.id} с инструкцией по оплате через ЕРИП.")
     except Exception as e:
         logger.error(f"Ошибка при отправке инструкции: {e}")
         await callback.message.answer("Произошла ошибка при отправке инструкции.")
 
-    await callback.answer()
+    finally:
+        await callback.answer()
 
 
 
@@ -62,7 +55,7 @@ async def process_button_erip_payment(callback: CallbackQuery):
     # Запрос к API
     payment_data = await get_payment_data_from_api(telegram_id)
     if not payment_data:
-        await callback.message.answer("Не удалось получить данные для оплаты.")
+        await callback.message.answer("❌ Не удалось получить данные для оплаты.")
         return
 
     # Формируем сообщение
