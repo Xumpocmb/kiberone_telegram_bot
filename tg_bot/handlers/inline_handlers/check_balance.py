@@ -35,7 +35,7 @@ async def check_balance_handler(callback: CallbackQuery):
     for client in balances:
         client_name = client.get("client_name", "👤 Без имени")
         balance = client.get("balance", 0.0)
-        balance_message += f"• {client_name}: <b>{balance:.2f} ₽</b>\n"
+        balance_message += f"• {client_name}: <b>{balance:.2f} BYN</b>\n"
 
     # Отправляем сообщение с балансами
     await callback.message.answer(balance_message, parse_mode="HTML")

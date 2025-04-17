@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from tg_bot.handlers import handler_start
 from tg_bot.configs.set_commands import set_main_menu
 from tg_bot.configs.logger_config import get_logger
+from tg_bot.handlers.inline_handlers.check_balance import balance_router
 
 from tg_bot.handlers.inline_handlers.main_menu import main_menu_router
 from tg_bot.handlers.inline_handlers.faq import faq_router
@@ -66,6 +67,7 @@ async def main():
         contact_manager_router,
         social_router,
         trial_lesson_router,
+        balance_router,
     )
 
     try:

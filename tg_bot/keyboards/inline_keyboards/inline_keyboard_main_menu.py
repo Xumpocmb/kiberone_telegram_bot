@@ -7,7 +7,7 @@ load_dotenv()
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 button_1: InlineKeyboardButton = InlineKeyboardButton(text="Вопрос & Ответ", callback_data="faq")
-button_2: InlineKeyboardButton = InlineKeyboardButton(text="Оплатить", callback_data="erip_payment-service")
+button_2: InlineKeyboardButton = InlineKeyboardButton(text="Оплатить", callback_data="erip_payment")
 button_4: InlineKeyboardButton = InlineKeyboardButton(text="Платформа английского Lim English",callback_data="english_platform")
 button_5: InlineKeyboardButton = InlineKeyboardButton(text="Бонусы для клиентов", callback_data="client_bonuses")
 button_6: InlineKeyboardButton = InlineKeyboardButton(text="Наши Партнёры", callback_data="partners_list")
@@ -18,7 +18,7 @@ button_10: InlineKeyboardButton = InlineKeyboardButton(text="Наши Партн
 button_12: InlineKeyboardButton = InlineKeyboardButton(text="Расписание занятий", callback_data="user_scheduler")
 button_13: InlineKeyboardButton = InlineKeyboardButton(text="Дата пробного занятия", callback_data="user_trial_date")
 button_14: InlineKeyboardButton = InlineKeyboardButton(text="Главный новостной канал KIBERone",url="https://t.me/kiberone_bel")
-button_15: InlineKeyboardButton = InlineKeyboardButton(text="Баланс", callback_data="crm_balance")
+button_15: InlineKeyboardButton = InlineKeyboardButton(text="Баланс", callback_data="check_balance")
 
 button_16: InlineKeyboardButton = InlineKeyboardButton(
     text="Личный кабинет KIBERhub",
