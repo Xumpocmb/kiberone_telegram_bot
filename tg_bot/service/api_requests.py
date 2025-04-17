@@ -621,3 +621,25 @@ async def get_user_balances_from_api(telegram_id: int) -> dict | None:
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")
         return None
+
+
+async def get_payment_data_from_api(telegram_id: int) -> list | None:
+    try:
+        async with aiohttp.ClientSession() as session:
+            url = f"{DJANGO_API_URL}api/get_client_payment_data/"
+            data = {"telegram_id": telegram_id}
+            async with session.post(url, json=data) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(f"Ошибка при расчете платежей: {response_data.get('message')}")
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(f"Ошибка при расчете платежей: {error_details}")
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
