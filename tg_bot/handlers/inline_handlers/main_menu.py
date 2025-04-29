@@ -5,9 +5,9 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from tg_bot.keyboards.inline_keyboards.inline_keyboard_main_menu import (
-    main_menu_inline_keyboard_for_client,
-    main_menu_inline_keyboard_for_lead_with_group,
-    main_menu_inline_keyboard_for_lead_without_group,
+    get_client_keyboard,
+    get_lead_with_group_keyboard,
+    get_lead_without_group_keyboard,
 )
 from tg_bot.service.api_requests import find_user_in_django
 
@@ -18,13 +18,6 @@ main_menu_router: Router = Router()
 USER_STATUS_CLIENT = "2"
 USER_STATUS_LEAD_WITH_GROUP = "1"
 USER_STATUS_LEAD_WITHOUT_GROUP = "0"
-
-
-keyboards_by_status = {
-    USER_STATUS_CLIENT: main_menu_inline_keyboard_for_client,
-    USER_STATUS_LEAD_WITH_GROUP: main_menu_inline_keyboard_for_lead_with_group,
-    USER_STATUS_LEAD_WITHOUT_GROUP: main_menu_inline_keyboard_for_lead_without_group,
-}
 
 
 @main_menu_router.message(Command("menu"))
@@ -83,9 +76,12 @@ async def get_user_keyboard(telegram_id):
         logger.info(f"Пользователь с ID {telegram_id} имеет статус: {user_status}")
 
         # Возвращаем клавиатуру в зависимости от статуса
-        return keyboards_by_status.get(
-            user_status, main_menu_inline_keyboard_for_lead_without_group
-        )
+        if user_status == "2":  # Клиент
+            return get_client_keyboard(telegram_id)
+        elif user_status == "1":  # Lead с группой
+            return get_lead_with_group_keyboard(telegram_id)
+        else:  # Lead
+            return get_lead_without_group_keyboard()
 
     except Exception as e:
         logger.error(f"Ошибка при получении клавиатуры пользователя: {e}")
