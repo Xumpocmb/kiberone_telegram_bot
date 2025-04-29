@@ -1,6 +1,10 @@
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
+
+KIBER_CLUB_URL = os.getenv("KIBER_CLUB_URL")
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
@@ -33,7 +37,7 @@ def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
     Возвращает InlineKeyboardMarkup для клиентов.
     """
     buttons = [
-        [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"https://www.google.by/?user_tg_id={user_tg_id}")],
+        [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"{KIBER_CLUB_URL}index/?user_tg_id={user_tg_id}")],
         [
             create_inline_button(text="Баланс", callback_data="check_balance"),
             create_inline_button(text="Оплатить", callback_data="erip_payment")
@@ -46,13 +50,11 @@ def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def get_lead_with_group_keyboard(user_tg_id) -> InlineKeyboardMarkup:
+def get_lead_with_group_keyboard() -> InlineKeyboardMarkup:
     """
     Возвращает клавиатуру для лидов с группой.
     """
     buttons = [
-        [create_inline_button(text="Личный кабинет KIBERhub",
-                              web_app_url=f"https://www.google.by/?user_tg_id={user_tg_id}")],
         [
             create_inline_button(text="Баланс", callback_data="check_balance"),
             create_inline_button(text="Оплатить", callback_data="erip_payment")

@@ -15,10 +15,6 @@ from tg_bot.service.api_requests import find_user_in_django
 logger = get_logger()
 main_menu_router: Router = Router()
 
-USER_STATUS_CLIENT = "2"
-USER_STATUS_LEAD_WITH_GROUP = "1"
-USER_STATUS_LEAD_WITHOUT_GROUP = "0"
-
 
 @main_menu_router.message(Command("menu"))
 async def menu_handler(message: Message):
@@ -79,7 +75,7 @@ async def get_user_keyboard(telegram_id):
         if user_status == "2":  # Клиент
             return get_client_keyboard(telegram_id)
         elif user_status == "1":  # Lead с группой
-            return get_lead_with_group_keyboard(telegram_id)
+            return get_lead_with_group_keyboard()
         else:  # Lead
             return get_lead_without_group_keyboard()
 
