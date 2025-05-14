@@ -592,7 +592,6 @@ async def get_manager_by_room_id(room_id: int) -> dict | None:
         return None
 
 
-
 async def get_user_balances_from_api(telegram_id: int) -> dict | None:
     """
     Получение баланса клиентов пользователя через API.
@@ -639,6 +638,29 @@ async def get_payment_data_from_api(telegram_id: int) -> list | None:
                 else:
                     error_details = await response.json()
                     logger.error(f"Ошибка при расчете платежей: {error_details}")
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_user_tg_links_from_api(telegram_id: int) -> list | None:
+    try:
+        async with aiohttp.ClientSession() as session:
+            url = f"{DJANGO_API_URL}api/get_user_tg_links/"
+            data = {"user_id": telegram_id}
+            async with session.get(url, json=data) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(f"Телеграм ссылки успешно получены")
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(f"Ошибка при получении телеграм ссылок {response_data.get('message')}")
+                        return None
+                else:
+                    error_details = await response.json()
+                    logger.error(f"Ошибка при получении телеграм ссылок: {error_details}")
                     return None
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")
