@@ -1,11 +1,6 @@
-import os
-
-from dotenv import load_dotenv
-from bot import API_URL
-
-load_dotenv()
-
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+
+from tg_bot.configs.bot_settings import API_URL
 
 
 def create_inline_button(

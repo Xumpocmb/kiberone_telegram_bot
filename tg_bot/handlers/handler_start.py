@@ -1,5 +1,4 @@
 import json
-import os
 import re
 
 from aiogram import Router, F, types
@@ -10,8 +9,6 @@ from aiogram.types import (
     KeyboardButton,
     ReplyKeyboardRemove,
 )
-
-
 
 from tg_bot.configs.logger_config import get_logger
 from tg_bot.filters.filter_admin import IsAdmin

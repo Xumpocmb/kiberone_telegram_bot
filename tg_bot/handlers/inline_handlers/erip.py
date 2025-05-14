@@ -12,9 +12,7 @@ erip_router = Router()
 async def process_button_erip_press(callback: CallbackQuery):
     """
     Обработчик нажатия на кнопку "Инструкция по оплате".
-    Отправляет инструкцию по оплате через ЕРИП.
     """
-    # Получаем инструкцию из API
     help_data = await get_erip_payment_help()
     if not help_data:
         await callback.message.answer("⚠️Инструкция по оплате временно недоступна.")
@@ -48,7 +46,6 @@ async def process_button_erip_press(callback: CallbackQuery):
 async def process_button_erip_payment(callback: CallbackQuery):
     """
     Обработчик нажатия на кнопку "Оплатить через ЕРИП".
-    Отправляет инструкцию по оплате через ЕРИП.
     """
     telegram_id = callback.from_user.id
 

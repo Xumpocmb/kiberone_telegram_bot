@@ -7,7 +7,7 @@
 import aiohttp
 from aiogram.types import Message
 
-from bot import API_URL
+from tg_bot.configs.bot_settings import API_URL
 from tg_bot.configs.logger_config import get_logger
 
 logger = get_logger()

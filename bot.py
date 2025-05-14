@@ -5,7 +5,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
-from dotenv import load_dotenv
+
+from tg_bot.configs.bot_settings import BOT_TOKEN
 from tg_bot.handlers import handler_start
 from tg_bot.configs.set_commands import set_main_menu
 from tg_bot.configs.logger_config import get_logger
@@ -22,19 +23,7 @@ from tg_bot.handlers.inline_handlers.trial_lesson import trial_lesson_router
 
 
 logger = get_logger()
-load_dotenv()
 
-DEBUG = os.getenv('BOT_DEBUG') == 'True'
-
-if DEBUG:
-    BOT_TOKEN = os.environ.get("TEST_BOT_TOKEN")
-else:
-    BOT_TOKEN = os.environ.get("BOT_TOKEN")
-
-if DEBUG:
-    API_URL = os.getenv("LOCAL_KIBER_API_URL")
-else:
-    API_URL = os.getenv("KIBER_API_URL")
 
 async def on_startup(bot: Bot):
     logger.info("Starting bot..")
