@@ -29,7 +29,7 @@ async def sales_managers_handler(callback: CallbackQuery):
     clients = user.get("clients", [])
 
     if not clients:
-        await callback.message.answer("Хм, у вас нет привязанных клиентов. Попробуйте начать с команды /start")
+        await callback.message.answer("Хм, у нас нет Ваших записей в системе. Попробуйте начать с команды /start")
         await callback.answer()
         return
 

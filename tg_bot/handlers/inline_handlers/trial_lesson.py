@@ -41,7 +41,7 @@ async def user_trial_handler(callback: CallbackQuery):
         clients = user.get("clients", [])
 
         if not clients:
-            await callback.message.answer("У вас нет привязанных клиентов.")
+            await callback.message.answer("Мы не нашли Ваши записи в системе.")
             await callback.answer()
             return
 
