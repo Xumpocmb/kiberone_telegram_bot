@@ -624,7 +624,7 @@ async def get_payment_data_from_api(telegram_id: int) -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             url = f"{API_URL}api/get_client_payment_data/"
-            data = {"telegram_id": telegram_id}
+            data = {"user_id": telegram_id}
             async with session.post(url, json=data) as response:
                 if response.status == 200:
                     response_data = await response.json()
