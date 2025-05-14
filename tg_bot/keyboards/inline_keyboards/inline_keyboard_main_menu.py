@@ -1,10 +1,9 @@
 import os
 
 from dotenv import load_dotenv
+from bot import API_URL
 
 load_dotenv()
-
-KIBER_CLUB_URL = os.getenv("KIBER_CLUB_URL")
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
@@ -42,7 +41,7 @@ button_balance = create_inline_button(text="Баланс", callback_data="check_
 
 def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"{KIBER_CLUB_URL}index/?user_tg_id={user_tg_id}")],
+        [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"{API_URL}index/?user_tg_id={user_tg_id}")],
         [button_balance, button_payment],
         [button_bonuses],
         [button_manager],

@@ -1,5 +1,4 @@
 from aiogram import Router, F
-from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
 from tg_bot.service.api_requests import get_user_balances_from_api

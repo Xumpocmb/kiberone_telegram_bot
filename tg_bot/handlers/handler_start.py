@@ -11,6 +11,8 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
+
+
 from tg_bot.configs.logger_config import get_logger
 from tg_bot.filters.filter_admin import IsAdmin
 from tg_bot.handlers.inline_handlers.main_menu import get_user_keyboard
@@ -26,7 +28,7 @@ logger = get_logger()
 
 start_router: Router = Router()
 
-DJANGO_API_URL = os.getenv("KIBER_API_URL")
+
 
 
 # -----------------------------------------------------------

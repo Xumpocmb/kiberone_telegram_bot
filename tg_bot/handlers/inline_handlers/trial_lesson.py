@@ -31,7 +31,6 @@ async def user_trial_handler(callback: CallbackQuery):
     try:
         await callback.message.answer("⏳ Ожидайте пожалуйста, проверяю Ваше расписание..")
 
-        # Получаем данные пользователя из Django
         user_data = await find_user_in_django(user_id)
         if not user_data or not user_data.get("success"):
             await callback.message.answer("❌ Ошибка: не удалось получить данные пользователя.")
@@ -46,7 +45,6 @@ async def user_trial_handler(callback: CallbackQuery):
             await callback.answer()
             return
 
-        # Выбираем первого клиента (можно добавить выбор активного клиента)
         for client in clients:
             user_crm_id = client.get("crm_id")
             branch_id = client.get("branch_id")
@@ -56,26 +54,22 @@ async def user_trial_handler(callback: CallbackQuery):
                 await callback.answer()
                 return
 
-            # Получаем пробные уроки
             lessons_data = await get_user_trial_lessons(user_crm_id, branch_id)
             if not lessons_data or lessons_data.get("total", 0) == 0:
                 await callback.message.answer("У вас нет запланированных пробных занятий.")
                 await callback.answer()
                 return
 
-            # Обрабатываем первый пробный урок
             trial_lesson = lessons_data.get("items", [])[0]
             lesson_date = trial_lesson.get("date")
             lesson_time_from = trial_lesson.get("time_from")
             lesson_time_to = trial_lesson.get("time_to")
             room_id = trial_lesson.get("room_id")
 
-            # Форматируем дату и время
             lesson_datetime = datetime.strptime(lesson_date, "%Y-%m-%d")
             lesson_day = days_of_week[str(lesson_datetime.weekday())]
             lesson_time = f"{lesson_time_from.split(' ')[1][:-3]} - {lesson_time_to.split(' ')[1][:-3]}"
 
-            # Получаем информацию о локации
             location_info = await get_location_info(room_id)
             if not location_info:
                 lesson_address = "Адрес занятия неизвестен."

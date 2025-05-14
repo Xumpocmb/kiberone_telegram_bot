@@ -31,6 +31,10 @@ if DEBUG:
 else:
     BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
+if DEBUG:
+    API_URL = os.getenv("LOCAL_KIBER_API_URL")
+else:
+    API_URL = os.getenv("KIBER_API_URL")
 
 async def on_startup(bot: Bot):
     logger.info("Starting bot..")

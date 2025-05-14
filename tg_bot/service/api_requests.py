@@ -4,14 +4,13 @@
 
 # -----------------------------------------------------------
 
-import os
 import aiohttp
-from tg_bot.configs.logger_config import get_logger
 from aiogram.types import Message
 
+from bot import API_URL
+from tg_bot.configs.logger_config import get_logger
 
 logger = get_logger()
-DJANGO_API_URL = os.getenv("KIBER_API_URL")
 
 
 async def find_user_in_django(telegram_id: str) -> dict | None:
@@ -19,14 +18,13 @@ async def find_user_in_django(telegram_id: str) -> dict | None:
         async with aiohttp.ClientSession() as session:
             data = {"telegram_id": telegram_id}
             async with session.post(
-                f"{DJANGO_API_URL}api/find_user_in_db/", json=data
+                f"{API_URL}api/find_user_in_db/", json=data
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
                     if response_data.get("success"):
                         user = response_data.get("user", {})
                         user_id = user.get("id")
-                        # Запрашиваем клиентов для пользователя
                         clients = await get_clients_by_user(user_id)
                         user["clients"] = clients or []
                         logger.info(f"Пользователь и его клиенты успешно получены.")
@@ -53,7 +51,7 @@ async def get_clients_by_user(user_id: int) -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_clients_by_user/{user_id}/"
+                f"{API_URL}api/get_clients_by_user/{user_id}/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -78,7 +76,7 @@ async def get_clients_by_user(user_id: int) -> list | None:
 
 
 async def register_user_in_db(telegram_id: str, username: str, phone_number: str) -> dict | None:
-    url = f"{DJANGO_API_URL}api/register_user_in_db/"
+    url = f"{API_URL}api/register_user_in_db/"
     data = {
         "telegram_id": telegram_id,
         "username": username,
@@ -115,7 +113,7 @@ async def find_user_in_crm(phone_number) -> dict | None:
     Поиск пользователя в CRM. Функция посредник, для вызова API.
     """
     async with aiohttp.ClientSession() as session:
-        url = f"{DJANGO_API_URL}api/find_user_in_crm/"
+        url = f"{API_URL}api/find_user_in_crm/"
         data = {"phone_number": phone_number}
         async with session.post(url, json=data) as response:
             response_data: dict = await response.json()
@@ -131,7 +129,7 @@ async def register_user_in_crm(message: Message, phone_number: str) -> dict | No
         "phone_number": phone_number,
     }
     async with aiohttp.ClientSession() as session:
-        url = f"{DJANGO_API_URL}api/register_user_in_crm/"
+        url = f"{API_URL}api/register_user_in_crm/"
         async with session.post(url, json=user_data) as response:
             response_data: dict = await response.json()
             return response_data.get("data", None)
@@ -141,7 +139,7 @@ async def create_or_update_clients_from_crm(db_user, crm_items: list) -> dict | 
     """
     Отправляет данные на API для создания, обновления или удаления клиентов.
     """
-    url = f"{DJANGO_API_URL}api/create_or_update_clients_in_db/"
+    url = f"{API_URL}api/create_or_update_clients_in_db/"
     data = {
         "user_id": db_user["id"],
         "crm_items": crm_items,
@@ -174,7 +172,7 @@ async def get_all_questions() -> list | None:
     """
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"{DJANGO_API_URL}api/questions/") as response:
+            async with session.get(f"{API_URL}api/questions/") as response:
                 if response.status == 200:
                     response_data = await response.json()
                     if response_data.get("success"):
@@ -201,7 +199,7 @@ async def get_answer_by_question_id(question_id: int) -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/answer_by_question/{question_id}/"
+                f"{API_URL}api/answer_by_question/{question_id}/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -229,7 +227,7 @@ async def get_erip_payment_help() -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_erip_payment_help/"
+                f"{API_URL}api/get_erip_payment_help/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -257,7 +255,7 @@ async def get_partner_categories() -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_partner_categories/"
+                f"{API_URL}api/get_partner_categories/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -286,7 +284,7 @@ async def get_partners_by_category(category_id: int) -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_partners_by_category/{category_id}/"
+                f"{API_URL}api/get_partners_by_category/{category_id}/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -317,7 +315,7 @@ async def get_partner_by_id(partner_id: int) -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_partner_by_id/{partner_id}/"
+                f"{API_URL}api/get_partner_by_id/{partner_id}/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -348,7 +346,7 @@ async def get_client_bonuses() -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_client_bonuses/"
+                f"{API_URL}api/get_client_bonuses/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -377,7 +375,7 @@ async def get_bonus_by_id(bonus_id: str) -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_bonus_by_id/{bonus_id}/"
+                f"{API_URL}api/get_bonus_by_id/{bonus_id}/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -406,7 +404,7 @@ async def get_sales_managers_by_branch(branch_id: int) -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_sales_managers_by_branch/{branch_id}/"
+                f"{API_URL}api/get_sales_managers_by_branch/{branch_id}/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -439,7 +437,7 @@ async def get_social_links_from_api() -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{DJANGO_API_URL}api/get_social_links/"
+                f"{API_URL}api/get_social_links/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -475,7 +473,7 @@ async def get_user_trial_lessons(user_crm_id: int, branch_id: int) -> dict | Non
                 "lesson_type": 3,  # Пробные уроки
             }
             async with session.post(
-                f"{DJANGO_API_URL}api/get_user_lessons/", json=data
+                f"{API_URL}api/get_user_lessons/", json=data
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -513,7 +511,7 @@ async def get_user_group_lessons(user_crm_id: int, branch_id: int) -> dict | Non
                 "lesson_type": 2,  # Пробные уроки
             }
             async with session.post(
-                f"{DJANGO_API_URL}api/get_user_lessons/", json=data
+                f"{API_URL}api/get_user_lessons/", json=data
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -544,7 +542,7 @@ async def get_location_info(location_id: int) -> dict | None:
     """
     try:
         async with aiohttp.ClientSession() as session:
-            url = f"{DJANGO_API_URL}api/get_location_by_id/{location_id}/"
+            url = f"{API_URL}api/get_location_by_id/{location_id}/"
             async with session.get(url) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -573,7 +571,7 @@ async def get_manager_by_room_id(room_id: int) -> dict | None:
     """
     try:
         async with aiohttp.ClientSession() as session:
-            url = f"{DJANGO_API_URL}api/get_manager_by_room_id/{room_id}/"
+            url = f"{API_URL}api/get_manager_by_room_id/{room_id}/"
             async with session.get(url) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -599,7 +597,7 @@ async def get_user_balances_from_api(telegram_id: int) -> dict | None:
     try:
         async with aiohttp.ClientSession() as session:
             data = {"telegram_id": telegram_id}
-            url = f"{DJANGO_API_URL}api/get_user_balances/"
+            url = f"{API_URL}api/get_user_balances/"
             async with session.post(url, json=data) as response:
                 if response.status == 200:
                     response_data = await response.json()
@@ -625,7 +623,7 @@ async def get_user_balances_from_api(telegram_id: int) -> dict | None:
 async def get_payment_data_from_api(telegram_id: int) -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
-            url = f"{DJANGO_API_URL}api/get_client_payment_data/"
+            url = f"{API_URL}api/get_client_payment_data/"
             data = {"telegram_id": telegram_id}
             async with session.post(url, json=data) as response:
                 if response.status == 200:
@@ -647,7 +645,7 @@ async def get_payment_data_from_api(telegram_id: int) -> list | None:
 async def get_user_tg_links_from_api(telegram_id: int) -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
-            url = f"{DJANGO_API_URL}api/get_user_tg_links/"
+            url = f"{API_URL}api/get_user_tg_links/"
             data = {"user_id": telegram_id}
             async with session.get(url, json=data) as response:
                 if response.status == 200:
