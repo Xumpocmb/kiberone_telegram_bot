@@ -34,16 +34,7 @@ DJANGO_API_URL = os.getenv("KIBER_API_URL")
 # ХЕНДЛЕР СТАРТ
 
 # -----------------------------------------------------------
-
-
-@start_router.message(IsAdmin(), CommandStart())
-async def admin_start_handler(message: Message) -> None:
-    await message.answer("Привет, администратор!")
-
-
-@start_router.message(CommandStart())
-async def user_start_handler(message: Message):
-    formatted_message = """
+formatted_message = """
             Вас приветствует Международная КиберШкола программирования для детей от 6 до 14 лет  KIBERone! 
             Мы точно знаем, чему учить детей, чтобы это было актуально через 20 лет!
             ✅ Цифровая грамотность: Основы программирования, управление данными, работа с нейросетями и искусственным интеллектом;
@@ -64,6 +55,14 @@ async def user_start_handler(message: Message):
             <b>С уважением, KIBERone!</b>
             """
 
+@start_router.message(IsAdmin(), CommandStart())
+async def admin_start_handler(message: Message) -> None:
+    await message.answer("Привет, администратор!\n"
+                         "Ссылка на админ панель: #")
+
+
+@start_router.message(CommandStart())
+async def user_start_handler(message: Message):
     telegram_id: str = str(message.from_user.id)
 
     await message.answer(
@@ -80,12 +79,12 @@ async def user_start_handler(message: Message):
         )
         return
     if find_result.get("success", False):
-        logger.info("Пользователь найден в БД. Обновим данные")
+        logger.info("Пользователь найден в БД. Обновим данные")
         db_user: dict | None = find_result.get("user", None)
         if db_user:
             await handle_existing_user(message, db_user)
     else:
-        logger.info("Пользователь не найден в БД. Запрашиваем контакт")
+        logger.info("Пользователь не найден в БД. Запрашиваем контакт")
         greeting = f"Привет, {message.from_user.username}!\n{formatted_message}"
         filename = "tgbot/files/contact_image.png"
         file = types.FSInputFile(filename)
@@ -118,14 +117,6 @@ async def handle_existing_user(message, db_user: dict):
 async def handle_contact(message: Message):
     """
     Обработчик контакта.
-    Выполняет следующие действия:
-    1. Получает информацию о пользователе из Telegram.
-    2. Ищет пользователя в базе данных Django.
-    3. Если пользователь не найден, регистрирует его в базе данных Django.
-    4. Ищет пользователя в CRM системе.
-    5. Если пользователь не найден в CRM, регистрирует его.
-    6. Обновляет данные о клиентах из CRM в базе данных Django.
-    7. Отправляет приветственное сообщение с клавиатурой, зависящей от статуса пользователя.
     """
     tg_user: types.User = message.from_user
     telegram_id: str = str(message.contact.user_id)
