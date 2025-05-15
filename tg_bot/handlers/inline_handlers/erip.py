@@ -48,10 +48,11 @@ async def process_button_erip_payment(callback: CallbackQuery):
     Обработчик нажатия на кнопку "Оплатить через ЕРИП".
     """
     telegram_id = callback.from_user.id
+    await callback.message.answer("⌛️ Сейчас всё подготовлю, ожидайте! ")
 
     payment_data = await get_payment_data_from_api(telegram_id)
     if not payment_data:
-        await callback.message.answer("❌ Не удалось получить данные для оплаты.")
+        await callback.message.answer("❌ Упс.. Мне не удалось получить данные для оплаты.")
         return
 
     for data in payment_data:
