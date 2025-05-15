@@ -24,7 +24,6 @@ async def sales_managers_handler(callback: CallbackQuery):
         await callback.answer()
         return
 
-    # Извлекаем информацию о пользователе
     user = user_data.get("user", {})
     clients = user.get("clients", [])
 
@@ -66,7 +65,7 @@ async def sales_managers_handler(callback: CallbackQuery):
             manager_name = manager_info.get("name", "Менеджер")
             manager_telegram_link = manager_info.get("telegram_link", "#")
             await callback.message.answer(
-                text=f"Ваш менеджер: {manager_name}\n{manager_telegram_link}")
+                text=f"Ваш менеджер KIBERone: {manager_name}\n{manager_telegram_link}")
         else:
             branch_id = client.get("branch_id")
             if not branch_id:
