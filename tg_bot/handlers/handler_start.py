@@ -72,12 +72,7 @@ async def user_start_handler(message: Message):
     )
 
     find_result: dict | None = await find_user_in_django(telegram_id)
-    if find_result is None:
-        await message.answer(
-            f"Упс.. У меня возникла ошибка при поиске в базе данных..🥺️\nПопробуйте ещё раз."
-        )
-        return
-    if find_result.get("success", False):
+    if find_result.get("success"):
         logger.info("Пользователь найден в БД. Обновим данные")
         db_user: dict | None = find_result.get("user", None)
         if db_user:

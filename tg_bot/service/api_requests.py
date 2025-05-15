@@ -1,4 +1,5 @@
 # -----------------------------------------------------------
+import asyncio
 
 # ОТПРАВКА ЗАПРОСОВ НА АПИ
 
@@ -18,29 +19,43 @@ async def find_user_in_django(telegram_id: str) -> dict | None:
         async with aiohttp.ClientSession() as session:
             data = {"telegram_id": telegram_id}
             async with session.post(
-                f"{API_URL}api/find_user_in_db/", json=data
+                    f"{API_URL}api/find_user_in_db/",
+                    json=data,
+                    timeout=aiohttp.ClientTimeout(total=5)  # добавляем таймаут
             ) as response:
-                if response.status == 200:
-                    response_data = await response.json()
-                    if response_data.get("success"):
-                        user = response_data.get("user", {})
-                        user_id = user.get("id")
+                response_data = await response.json()
+
+                # Успешный ответ от API (независимо от статуса)
+                if response_data.get("success", False):
+                    user = response_data.get("user", {})
+                    if not user:
+                        logger.error(f"API вернул success=True, но без данных пользователя")
+                        return {"success": False, "message": "Ошибка данных пользователя"}
+
+                    try:
+                        user_id = user["id"]
                         clients = await get_clients_by_user(user_id)
                         user["clients"] = clients or []
-                        logger.info(f"Пользователь и его клиенты успешно получены.")
+                        logger.info(f"Найден пользователь и {len(clients)} клиентов")
                         return {"success": True, "user": user}
-                    else:
-                        logger.info(
-                            f"Пользователь с telegram_id {telegram_id} не найден в БД."
-                        )
-                        return response_data
-                else:
-                    logger.error(
-                        f"Ошибка при поиске пользователя в БД: {await response.json()}"
-                    )
-                    return None
+                    except KeyError:
+                        logger.error("В ответе API отсутствует user.id")
+                        return {"success": False, "message": "Ошибка данных пользователя"}
+
+                # Пользователь не найден (но API ответило корректно)
+                return {
+                    "success": False,
+                    "message": response_data.get("message", "Пользователь не найден")
+                }
+
+    except asyncio.TimeoutError:
+        logger.error(f"Таймаут при запросе к API для telegram_id {telegram_id}")
+        return None
+    except aiohttp.ClientError as e:
+        logger.error(f"Ошибка соединения с API: {str(e)}")
+        return None
     except Exception as e:
-        logger.error(f"Не удалось выполнить запрос к БД: {e}")
+        logger.error(f"Неожиданная ошибка при запросе к API: {str(e)}")
         return None
 
 
