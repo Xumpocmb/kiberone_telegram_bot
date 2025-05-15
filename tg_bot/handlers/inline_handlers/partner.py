@@ -33,7 +33,7 @@ async def partners_handler(callback: CallbackQuery):
         keyboard.button(
             text=category["name"], callback_data=f"partner_category_{category['id']}"
         )
-    keyboard.button(text="Назад", callback_data="inline_main_menu")
+    keyboard.button(text="<< Назад", callback_data="inline_main_menu")
     keyboard.adjust(1)
 
     await callback.message.edit_text(
@@ -48,6 +48,7 @@ async def handle_category_selection(callback: CallbackQuery):
     Обработчик выбора категории.
     Отправляет список партнеров и их бонусов.
     """
+
     category_id = callback.data.split("_")[-1]
     partners = await get_partners_by_category(category_id)
     if not partners:
@@ -84,36 +85,39 @@ async def handle_partner_selection(callback: CallbackQuery):
         return
 
     # Проверяем статус пользователя
-    user_status = await get_user_status(callback.from_user.id)
-    if user_status != "2":  # Только клиенты получают промокод
-        formatted_text = f"""
-        <b>Партнер:</b> {partner['partner_name']}
-        <b>Описание:</b> {partner['description']}
-        """
-    else:
-        formatted_text = f"""
-        <b>Партнер:</b> {partner['partner_name']}
-        <b>Описание:</b> {partner['description']}
-        <b>Промо-код:</b> {partner['code']}
-        """
+    user_status = await get_user_status(str(callback.from_user.id))
 
-    # Создаем клавиатуру с кнопкой "Назад"
+    if user_status == "2":
+        if user_status != "2":  # Только клиенты получают промокод
+            formatted_text = f"""
+            <b>Партнер:</b> {partner['partner_name']}
+            <b>Описание:</b> {partner['description']}
+            """
+        else:
+            formatted_text = f"""
+            <b>Партнер:</b> {partner['partner_name']}
+            <b>Описание:</b> {partner['description']}
+            <b>Промо-код:</b> {partner['code']}
+            """
+    else:
+        formatted_text = "Информация доступна только резидентам!"
+
     keyboard = InlineKeyboardBuilder()
     keyboard.button(
-        text="Назад", callback_data=f"partner_category_{partner['category']}"
-    )  # Возвращаемся к категории
+        text="<< Назад", callback_data=f"partner_category_{partner['category']}"
+    )
     keyboard.adjust(1)
 
     await callback.message.edit_text(formatted_text, reply_markup=keyboard.as_markup())
     await callback.answer()
 
 
-async def get_user_status(telegram_id: int) -> str:
+async def get_user_status(telegram_id: str) -> str:
     """
     Получает статус пользователя из базы данных Django.
     """
     user_data = await find_user_in_django(telegram_id)
     if user_data and user_data.get("success"):
         user = user_data.get("user", {})
-        return user.get("status", "0")  # По умолчанию "Lead"
+        return user.get("status", "0")
     return "0"

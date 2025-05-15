@@ -15,6 +15,7 @@ from tg_bot.handlers.inline_handlers.check_balance import balance_router
 from tg_bot.handlers.inline_handlers.main_menu import main_menu_router
 from tg_bot.handlers.inline_handlers.faq import faq_router
 from tg_bot.handlers.inline_handlers.erip import erip_router
+from tg_bot.handlers.inline_handlers.menu_bonuses import menu_bonuses_router
 from tg_bot.handlers.inline_handlers.partner import partners_router
 from tg_bot.handlers.inline_handlers.bonus import bonuses_router
 from tg_bot.handlers.inline_handlers.kiberone_manager import contact_manager_router
@@ -61,6 +62,7 @@ async def main():
         social_router,
         trial_lesson_router,
         balance_router,
+        menu_bonuses_router,
     )
 
     try:

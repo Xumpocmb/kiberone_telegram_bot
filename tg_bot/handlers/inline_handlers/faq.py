@@ -29,7 +29,7 @@ async def faq_handler(callback: CallbackQuery):
     keyboard.button(text="<< Главное меню", callback_data="inline_main_menu")
     keyboard.adjust(1)
 
-    await callback.message.answer("Выберите вопрос:", reply_markup=keyboard.as_markup())
+    await callback.message.edit_text("Выберите вопрос:", reply_markup=keyboard.as_markup())
     await callback.answer()  # Завершаем коллбэк
 
 
@@ -50,7 +50,7 @@ async def handle_faq_question(callback: CallbackQuery):
     keyboard.button(text="<< Назад", callback_data="faq")
     keyboard.adjust(1)
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         f"<b>Вопрос:</b> {answer_data['question']}\n\n<b>Ответ:</b> {answer_data['answer']}",
         reply_markup=keyboard.as_markup(),
     )

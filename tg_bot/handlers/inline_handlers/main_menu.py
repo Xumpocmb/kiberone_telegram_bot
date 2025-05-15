@@ -13,6 +13,7 @@ from tg_bot.service.api_requests import find_user_in_django
 
 
 logger = get_logger()
+
 main_menu_router: Router = Router()
 
 

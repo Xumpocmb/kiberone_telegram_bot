@@ -1,5 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from tg_bot.handlers.inline_handlers.main_menu import get_user_keyboard
 from tg_bot.service.api_requests import get_erip_payment_help, get_payment_data_from_api
 from tg_bot.configs.logger_config import get_logger
@@ -29,9 +31,12 @@ async def process_button_erip_press(callback: CallbackQuery):
 
     Для удобства вы можете перейти по ссылке: {erip_link}
     """
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(text="<< Главное меню", callback_data="inline_main_menu")
+    keyboard.adjust(1)
 
     try:
-        await callback.message.answer(formatted_text, reply_markup=await get_user_keyboard(callback.from_user.id))
+        await callback.message.answer(formatted_text, reply_markup=keyboard.as_markup())
         logger.info(f"Отправлено сообщение пользователю {callback.from_user.id} с инструкцией по оплате через ЕРИП.")
     except Exception as e:
         logger.error(f"Ошибка при отправке инструкции: {e}")

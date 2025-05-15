@@ -32,7 +32,7 @@ def create_inline_button(
 button_faq = create_inline_button(text="Вопрос & Ответ", callback_data="faq")
 button_payment = create_inline_button(text="Оплатить", callback_data="erip_payment")
 button_erip = create_inline_button(text="Оплатить через ЕРИП", callback_data="erip_info")
-button_bonuses = create_inline_button(text="Бонусы для клиентов", callback_data="client_bonuses")
+button_bonuses = create_inline_button(text="Бонусы для клиентов", callback_data="menu_bonuses")
 button_manager = create_inline_button(text="Ваш менеджер KIBERone", callback_data="contact_manager")
 button_links = create_inline_button(text="Будь в тренде! (Inst, Tg)", callback_data="menu_links")
 button_trial = create_inline_button(text="Дата пробного занятия", callback_data="user_trial_date")

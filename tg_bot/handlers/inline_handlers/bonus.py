@@ -27,7 +27,7 @@ async def bonuses_handler(callback: CallbackQuery):
     keyboard.button(text="<< Главное меню", callback_data="inline_main_menu")
     keyboard.adjust(1)
 
-    await callback.message.answer("Ваши бонусы:", reply_markup=keyboard.as_markup())
+    await callback.message.edit_text("Ваши бонусы:", reply_markup=keyboard.as_markup())
     await callback.answer()
 
 
