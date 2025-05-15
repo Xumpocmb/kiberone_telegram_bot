@@ -4,6 +4,10 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 from tg_bot.configs.bot_settings import API_URL
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def create_inline_button(
     text: str,
@@ -38,7 +42,7 @@ button_balance = create_inline_button(text="Баланс", callback_data="check_
 
 def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"{API_URL}index/?user_tg_id={user_tg_id}")] if os.getenv("BOT_DEBUG") == "true" else [],
+        [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"{API_URL}index/?user_tg_id={user_tg_id}")] if os.getenv("BOT_DEBUG") == "True" else [],
         [button_balance, button_payment],
         [button_bonuses],
         [button_manager],
