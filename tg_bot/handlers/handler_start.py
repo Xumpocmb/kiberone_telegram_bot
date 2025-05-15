@@ -140,7 +140,7 @@ async def handle_contact(message: Message):
     """
     tg_user: types.User = message.from_user
     telegram_id: str = str(message.contact.user_id)
-    username: str = tg_user.username
+    username: str = tg_user.username if tg_user.username else "nousername"
     phone_number: str = str(re.sub(r"\D", "", message.contact.phone_number))
 
     # Поиск в БД Django
