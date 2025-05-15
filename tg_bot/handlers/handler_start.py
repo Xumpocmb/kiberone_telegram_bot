@@ -8,7 +8,7 @@ from aiogram.types import (
     Message,
     ReplyKeyboardMarkup,
     KeyboardButton,
-    ReplyKeyboardRemove,
+    ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup,
 )
 
 from tg_bot.configs.logger_config import get_logger
@@ -19,7 +19,7 @@ from tg_bot.service.api_requests import (
     find_user_in_crm,
     find_user_in_django,
     register_user_in_crm,
-    register_user_in_db,
+    register_user_in_db, get_user_tg_links_from_api,
 )
 
 logger = get_logger()
@@ -158,8 +158,29 @@ async def handle_contact(message: Message):
     user_status = updated_db_user.get("status", "0")  # По умолчанию "Lead"
     logger.info(f"Пользователь {username} имеет статус: {user_status}")
 
-    # Отправляем клавиатуру в зависимости от статуса
-    await message.answer("Вот мое меню 🤗:", reply_markup=await get_user_keyboard(telegram_id))
+    buttons = [
+        InlineKeyboardButton(
+            text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel"
+        )
+    ]
+
+    links = await get_user_tg_links_from_api(updated_db_user.get("telegram_id"))
+
+    if links:
+        for link in links:
+            if link.startswith("https://t.me/"):
+                buttons.append(InlineKeyboardButton(text="Чат группы", url=str(link)))
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[button] for button in buttons],
+        resize_keyboard=True,
+        input_field_placeholder="Перейдите по ссылкам для вступления в группы..",
+    )
+    await message.answer("Вот необходимые телеграм-ссылки:\n"
+                                  "Перейдите в них, вступите 😊", reply_markup=keyboard)
+
+    # # Отправляем клавиатуру в зависимости от статуса
+    # await message.answer("Вот мое меню 🤗:", reply_markup=await get_user_keyboard(telegram_id))
 
 
 # -----------------------------------------------------------
