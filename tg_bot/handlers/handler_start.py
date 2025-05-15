@@ -82,11 +82,7 @@ async def user_start_handler(message: Message):
         else:
             logger.info("Пользователь не найден в БД. Запрашиваем контакт")
             greeting = f"Привет, {message.from_user.username}!\n{formatted_message}"
-            filename = os.path.abspath("tgbot/files/contact_image.png")
-            if not os.path.exists(filename):
-                print(f"❌ Файл не найден: {filename}")
-            else:
-                print(f"✅ Файл найден: {filename}")
+            filename = os.path.abspath("tg_bot/files/contact_image.png")
             file = types.FSInputFile(filename)
             contact_keyboard = ReplyKeyboardMarkup(
                 resize_keyboard=True,
