@@ -1,4 +1,5 @@
 import json
+import os
 import re
 
 from aiogram import Router, F, types
@@ -72,26 +73,33 @@ async def user_start_handler(message: Message):
     )
 
     find_result: dict | None = await find_user_in_django(telegram_id)
-    if find_result.get("success"):
-        logger.info("Пользователь найден в БД. Обновим данные")
-        db_user: dict | None = find_result.get("user", None)
-        if db_user:
-            await handle_existing_user(message, db_user)
+    if find_result is not None:
+        if find_result.get("success"):
+            logger.info("Пользователь найден в БД. Обновим данные")
+            db_user: dict | None = find_result.get("user", None)
+            if db_user:
+                await handle_existing_user(message, db_user)
+        else:
+            logger.info("Пользователь не найден в БД. Запрашиваем контакт")
+            greeting = f"Привет, {message.from_user.username}!\n{formatted_message}"
+            filename = os.path.abspath("tgbot/files/contact_image.png")
+            if not os.path.exists(filename):
+                print(f"❌ Файл не найден: {filename}")
+            else:
+                print(f"✅ Файл найден: {filename}")
+            file = types.FSInputFile(filename)
+            contact_keyboard = ReplyKeyboardMarkup(
+                resize_keyboard=True,
+                keyboard=[
+                    [KeyboardButton(text="⚡️Поделиться контактом⚡️", request_contact=True)]
+                ],
+            )
+            await message.answer(greeting, reply_markup=contact_keyboard)
+            await message.answer_photo(
+                file, caption="Поделитесь своим контактом с KIBERone"
+            )
     else:
-        logger.info("Пользователь не найден в БД. Запрашиваем контакт")
-        greeting = f"Привет, {message.from_user.username}!\n{formatted_message}"
-        filename = "tgbot/files/contact_image.png"
-        file = types.FSInputFile(filename)
-        contact_keyboard = ReplyKeyboardMarkup(
-            resize_keyboard=True,
-            keyboard=[
-                [KeyboardButton(text="⚡️Поделиться контактом⚡️", request_contact=True)]
-            ],
-        )
-        await message.answer(greeting, reply_markup=contact_keyboard)
-        await message.answer_photo(
-            file, caption="Поделитесь своим контактом с KIBERone"
-        )
+        await message.answer(f"Упс.. У нас возникла ошибка с сервисом хранения Кибер-данных..\nПопробуйте ещё раз.")
 
 
 async def handle_existing_user(message, db_user: dict):
