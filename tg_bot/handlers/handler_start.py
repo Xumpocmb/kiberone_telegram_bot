@@ -108,6 +108,28 @@ async def handle_existing_user(message, db_user: dict):
 
     # Поиск в црм, создание и обновление в БД
     await handle_crm_lookup(message, phone_number, db_user)
+
+    buttons = [
+        InlineKeyboardButton(
+            text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel"
+        )
+    ]
+
+    links = await get_user_tg_links_from_api(telegram_id)
+
+    if links:
+        for link in links:
+            if link.startswith("https://t.me/"):
+                buttons.append(InlineKeyboardButton(text="Чат группы", url=str(link)))
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[button] for button in buttons],
+        resize_keyboard=True,
+        input_field_placeholder="Перейдите по ссылкам для вступления в группы..",
+    )
+    await message.answer("Вот необходимые телеграм-ссылки:\n"
+                         "Перейдите в них, вступите 😊", reply_markup=keyboard)
+
     await message.answer("Вот мое меню 🤗:", reply_markup=await get_user_keyboard(telegram_id))
 
 
