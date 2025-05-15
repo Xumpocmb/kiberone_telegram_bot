@@ -11,6 +11,7 @@ from tg_bot.handlers import handler_start
 from tg_bot.configs.set_commands import set_main_menu
 from tg_bot.configs.logger_config import get_logger
 from tg_bot.handlers.inline_handlers.check_balance import balance_router
+from tg_bot.handlers.inline_handlers.inline_handler_english_platform import english_platform_router
 
 from tg_bot.handlers.inline_handlers.main_menu import main_menu_router
 from tg_bot.handlers.inline_handlers.faq import faq_router
@@ -63,6 +64,7 @@ async def main():
         trial_lesson_router,
         balance_router,
         menu_bonuses_router,
+        english_platform_router,
     )
 
     try:
