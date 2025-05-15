@@ -657,7 +657,7 @@ async def get_payment_data_from_api(telegram_id: int) -> list | None:
         return None
 
 
-async def get_user_tg_links_from_api(telegram_id: int) -> list | None:
+async def get_user_tg_links_from_api(telegram_id: str) -> list | None:
     try:
         async with aiohttp.ClientSession() as session:
             url = f"{API_URL}api/get_user_tg_links/"

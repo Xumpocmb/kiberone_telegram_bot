@@ -160,7 +160,7 @@ async def handle_contact(message: Message):
         )
     ]
 
-    links = await get_user_tg_links_from_api(updated_db_user.get("telegram_id"))
+    links = await get_user_tg_links_from_api(telegram_id)
 
     if links:
         for link in links:
@@ -207,7 +207,7 @@ async def handle_crm_lookup(message: Message, phone_number: str, db_user: dict):
             deleted = response_data.get("deleted", 0)
             await message.answer(
                 f"Создано новых клиентов: {created}\n"f"Обновлено клиентов: {updated}\n"f"Удалено клиентов: {deleted}")
-            await message.answer("Актуальность данных проверена!", reply_markup=ReplyKeyboardRemove())
+            await message.answer("Информация обновлена!", reply_markup=ReplyKeyboardRemove())
             return
 
         # обновление в црм
@@ -227,7 +227,7 @@ async def handle_crm_lookup(message: Message, phone_number: str, db_user: dict):
             updated = response_data.get("updated", 0)
             deleted = response_data.get("deleted", 0)
             logger.info(f"Результат обновления данных: created:{created}, updated:{updated}, deleted:{deleted}")
-            await message.answer("Актуальность данных проверена! 💫")
+            await message.answer("Информация обновлена! 💫")
 
     except Exception as e:
         logger.error(f"Ошибка при работе с CRM: {str(e)}")
