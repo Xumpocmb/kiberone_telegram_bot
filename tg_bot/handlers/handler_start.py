@@ -227,8 +227,6 @@ async def handle_crm_lookup(message: Message, phone_number: str, db_user: dict):
             created = response_data.get("created", 0)
             updated = response_data.get("updated", 0)
             deleted = response_data.get("deleted", 0)
-            await message.answer(
-                f"Создано новых клиентов: {created}\n"f"Обновлено клиентов: {updated}\n"f"Удалено клиентов: {deleted}")
             await message.answer("Информация обновлена!", reply_markup=ReplyKeyboardRemove())
             return
 
