@@ -76,3 +76,7 @@ venv.bak/
 
 /info.txt
 /tg_bot/files/
+
+/.vscode/
+/.pylintrc
+settings.json
