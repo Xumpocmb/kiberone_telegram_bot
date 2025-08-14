@@ -412,21 +412,19 @@ async def get_bonus_by_id(bonus_id: str) -> dict | None:
         return None
 
 
-async def get_sales_managers_by_branch(branch_id: int) -> list | None:
+async def get_sales_managers() -> list | None:
     """
     Получение списка менеджеров по продажам для указанного филиала.
     """
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{API_URL}api/get_sales_managers_by_branch/{branch_id}/"
+                f"{API_URL}api/get_sales_managers/"
             ) as response:
                 if response.status == 200:
                     response_data = await response.json()
                     if response_data.get("success"):
-                        logger.info(
-                            f"Менеджеры для филиала {branch_id} успешно получены."
-                        )
+                        logger.info("Менеджеры успешно получены.")
                         return response_data.get("data", [])
                     else:
                         error_message = response_data.get(
@@ -580,25 +578,25 @@ async def get_location_info(location_id: int) -> dict | None:
         return None
 
 
-async def get_manager_by_room_id(room_id: int) -> dict | None:
+async def get_manager(user_crm_id: int, branch_id: int) -> dict | None:
     """
-    Получение менеджера по room_id через API.
+    Получение информации о менеджере клиента через API.
     """
     try:
         async with aiohttp.ClientSession() as session:
-            url = f"{API_URL}api/get_manager_by_room_id/{room_id}/"
+            url = f"{API_URL}api/get_manager/{branch_id}/{user_crm_id}/"
             async with session.get(url) as response:
                 if response.status == 200:
                     response_data = await response.json()
                     if response_data.get("success"):
-                        logger.info(f"Менеджер для room_id={room_id} успешно получен.")
-                        return response_data.get("data", {})
+                        logger.info(f"Информация о менеджере для user_crm_id={user_crm_id} успешно получена.")
+                        return response_data
                     else:
-                        logger.error(f"Ошибка при получении менеджера: {response_data.get('message')}")
-                        return None
+                        logger.info(f"Менеджер не найден для user_crm_id={user_crm_id}: {response_data.get('message')}")
+                        return response_data  # Возвращаем данные даже при success=False
                 else:
                     error_details = await response.json()
-                    logger.error(f"Ошибка при получении менеджера: {error_details}")
+                    logger.error(f"Ошибка при получении информации о менеджере: {error_details}")
                     return None
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")

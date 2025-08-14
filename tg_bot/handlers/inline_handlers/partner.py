@@ -94,11 +94,18 @@ async def handle_partner_selection(callback: CallbackQuery):
             <b>Описание:</b> {partner['description']}
             """
         else:
+            # Базовый текст с информацией о партнере
             formatted_text = f"""
             <b>Партнер:</b> {partner['partner_name']}
             <b>Описание:</b> {partner['description']}
+            """
+            
+            # Добавляем промо-код только если он существует
+            if partner.get('code'):
+                formatted_text = formatted_text.rstrip() + f"""
             <b>Промо-код:</b> {partner['code']}
             """
+            
     else:
         formatted_text = "Информация доступна только резидентам!"
 
