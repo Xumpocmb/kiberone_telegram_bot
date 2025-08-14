@@ -207,6 +207,29 @@ async def get_all_questions() -> list | None:
         return None
 
 
+async def get_sales_managers() -> list | None:
+    """
+    Получает список всех менеджеров продаж из API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{API_URL}api/get_sales_managers/") as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info(f"Список менеджеров продаж успешно получен.")
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(f"Ошибка при получении менеджеров продаж: {response_data.get('message')}")
+                        return None
+                else:
+                    logger.error(f"Не удалось выполнить запрос к API: {response.status}, message='{await response.text()}', url='{response.url}'")
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
 async def get_answer_by_question_id(question_id: int) -> dict | None:
     """
     Получает ответ на вопрос по ID из API.
@@ -411,36 +434,6 @@ async def get_bonus_by_id(bonus_id: str) -> dict | None:
         logger.error(f"Не удалось выполнить запрос к API: {e}")
         return None
 
-
-async def get_sales_managers() -> list | None:
-    """
-    Получение списка менеджеров по продажам для указанного филиала.
-    """
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                f"{API_URL}api/get_sales_managers/"
-            ) as response:
-                if response.status == 200:
-                    response_data = await response.json()
-                    if response_data.get("success"):
-                        logger.info("Менеджеры успешно получены.")
-                        return response_data.get("data", [])
-                    else:
-                        error_message = response_data.get(
-                            "message", "Неизвестная ошибка"
-                        )
-                        logger.error(
-                            f"Ошибка при получении менеджеров: {error_message}"
-                        )
-                        return None
-                else:
-                    error_details = await response.json()
-                    logger.error(f"Ошибка при получении менеджеров: {error_details}")
-                    return None
-    except Exception as e:
-        logger.error(f"Не удалось выполнить запрос к API: {e}")
-        return None
 
 
 async def get_social_links_from_api() -> list | None:

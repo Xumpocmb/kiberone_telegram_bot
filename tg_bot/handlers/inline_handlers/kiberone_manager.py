@@ -34,57 +34,94 @@ async def get_managers_handler(callback: CallbackQuery):
             return
 
         # Берем первого клиента для получения информации о менеджере
-        client = clients[0]
-        user_crm_id = client.get("crm_id")
-        branch_id = client.get("branch_id")
+        for client in clients:
+            user_crm_id = client.get("crm_id")
+            branch_id = client.get("branch_id")
 
-        if not user_crm_id or not branch_id:
-            await callback.message.answer("⚠️ Недостаточно данных для поиска менеджера.")
-            await callback.answer()
-            return
+            if not user_crm_id or not branch_id:
+                await callback.message.answer("⚠️ Недостаточно данных для поиска менеджера.")
+                await callback.answer()
+                return
 
-        # Получаем информацию о менеджере
-        manager_info = await get_manager(user_crm_id, branch_id)
-        
-        # Создаем клавиатуру для возврата в главное меню
-        keyboard = InlineKeyboardBuilder()
-        keyboard.button(text="« Назад в меню", callback_data="main_menu")
-        
-        # Проверяем наличие ответа от API
-        if not manager_info:
-            await callback.message.answer("⚠️ Не удалось получить информацию о менеджере. Попробуйте позже.", reply_markup=keyboard.as_markup())
-            await callback.answer()
-            return
+            # Получаем информацию о менеджере
+            manager_info = await get_manager(user_crm_id, branch_id)
             
-        # Проверяем успешность запроса
-        if not manager_info.get("success"):
-            message = manager_info.get("message", "Не удалось получить информацию о менеджере.")
-            await callback.message.answer(f"⚠️ {message}", reply_markup=keyboard.as_markup())
-            await callback.answer()
-            return
+            # Создаем клавиатуру для возврата в главное меню
+            keyboard = InlineKeyboardBuilder()
+            keyboard.button(text="« Назад в меню", callback_data="main_menu")
             
-        # Проверяем наличие назначенного менеджера
-        has_assigned = manager_info.get("has_assigned", False)
-        if not has_assigned:
-            await callback.message.answer("ℹ️ У вас нет назначенного менеджера.", reply_markup=keyboard.as_markup())
-            await callback.answer()
-            return
+            # Проверяем наличие ответа от API
+            if not manager_info:
+                await callback.message.answer("⚠️ Не удалось получить информацию о менеджере. Попробуйте позже.", reply_markup=keyboard.as_markup())
+                await callback.answer()
+                return
+                
+            # Проверяем успешность запроса
+            if not manager_info.get("success"):
+                message = manager_info.get("message", "Не удалось получить информацию о менеджере.")
+                
+                # Если у клиента нет назначенного менеджера, показываем список всех менеджеров продаж
+                if "нет назначенного менеджера" in message or "Менеджер с ID" in message:
+                    # Получаем список всех менеджеров продаж
+                    sales_managers = await get_sales_managers()
+                    
+                    if sales_managers and len(sales_managers) > 0:
+                        message_text = "ℹ️ У вас нет назначенного менеджера. Вы можете связаться с любым из наших менеджеров:\n\n"
+                        
+                        for manager in sales_managers:
+                            name = manager.get("name", "Не указано")
+                            telegram_link = manager.get("telegram_link", "")
+                            
+                            if telegram_link:
+                                message_text += f"👨‍💼 <b>{name}</b>: {telegram_link}\n"
+                            else:
+                                message_text += f"👨‍💼 <b>{name}</b>\n"
+                        
+                        await callback.message.answer(message_text, reply_markup=keyboard.as_markup())
+                        await callback.answer()
+                        return
+                
+                # Если другая ошибка или не удалось получить менеджеров
+                await callback.message.answer(f"⚠️ {message}", reply_markup=keyboard.as_markup())
+                await callback.answer()
+                return
+                
+            # Проверяем наличие назначенного менеджера
+            has_assigned = manager_info.get("has_assigned", False)
+            if not has_assigned:
+                # Получаем список всех менеджеров продаж
+                sales_managers = await get_sales_managers()
+                
+                if sales_managers and len(sales_managers) > 0:
+                    message_text = "ℹ️ У вас нет назначенного менеджера. Вы можете связаться с любым из наших менеджеров:\n\n"
+                    
+                    for manager in sales_managers:
+                        name = manager.get("name", "Не указано")
+                        telegram_link = manager.get("telegram_link", "")
+                        
+                        if telegram_link:
+                            message_text += f"👨‍💼 <b>{name}</b>: {telegram_link}\n"
+                        else:
+                            message_text += f"👨‍💼 <b>{name}</b>\n"
+                    
+                    await callback.message.answer(message_text, reply_markup=keyboard.as_markup())
+                    await callback.answer()
+                    return
+                else:
+                    await callback.message.answer("ℹ️ У вас нет назначенного менеджера.", reply_markup=keyboard.as_markup())
+                    await callback.answer()
+                    return
+                
+            # Формируем сообщение с информацией о менеджере
+            manager_data = manager_info.get("data", {})
+            manager_tg = manager_data.get("custom_tg", "")
+            manager_name = manager_data.get("name", "Не указано")
             
-        # Формируем сообщение с информацией о менеджере
-        manager_data = manager_info.get("data", {})
-        is_study = manager_info.get("is_study", False)
-        manager_name = manager_data.get("name", "Не указано")
-        manager_phone = manager_data.get("phone", "Не указано")
-        manager_email = manager_data.get("email", "Не указано")
+            message_text = (f"👨‍💼 <b>Ваш менеджер:</b> {manager_name}\n"
+                    f"📱 <b>Телеграм:</b> {manager_tg}")
+
         
-        message_text = f"👨‍💼 <b>Ваш менеджер:</b> {manager_name}\n"
-        message_text += f"📱 <b>Телефон:</b> {manager_phone}\n"
-        message_text += f"📧 <b>Email:</b> {manager_email}\n"
-        
-        if is_study:
-            message_text += "\n🎓 <i>Вы находитесь в процессе обучения.</i>"
-        
-        await callback.message.answer(message_text, reply_markup=keyboard.as_markup())
+            await callback.message.answer(message_text, reply_markup=keyboard.as_markup())
         await callback.answer()
 
     except Exception as e:
