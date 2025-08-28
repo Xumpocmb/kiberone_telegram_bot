@@ -8,16 +8,6 @@ social_router = Router()
 
 
 @social_router.callback_query(F.data == "menu_links")
-async def menu_links(callback: CallbackQuery):
-    await callback.message.answer("Где нас найти?", reply_markup=links_menu_inline)
-    await callback.answer()
-
-
-
-
-
-
-@social_router.callback_query(F.data == "social_links")
 async def social_links_handler(callback: CallbackQuery):
     """
     Обработчик кнопки "Социальные ссылки".
