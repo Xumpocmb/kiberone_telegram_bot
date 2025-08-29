@@ -24,6 +24,7 @@ async def social_links_handler(callback: CallbackQuery):
             [InlineKeyboardButton(text=link["name"], url=link["link"])]
             for link in links
         ]
+        + [[InlineKeyboardButton(text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel")]]
         + [[InlineKeyboardButton(text="<< Назад", callback_data="inline_main_menu")]]
     )
 
@@ -34,11 +35,13 @@ async def social_links_handler(callback: CallbackQuery):
 
 @social_router.callback_query(F.data == "tg_links")
 async def tg_links_handler(callback: CallbackQuery):
-    buttons = [
-        InlineKeyboardButton(
-            text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel"
-        )
-    ]
+    # buttons = [
+    #     InlineKeyboardButton(
+    #         text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel"
+    #     )
+    # ]
+    
+    buttons = []
 
     user_id = callback.from_user.id
     links = await get_user_tg_links_from_api(user_id)
@@ -53,5 +56,5 @@ async def tg_links_handler(callback: CallbackQuery):
         resize_keyboard=True,
         input_field_placeholder="Перейдите по ссылкам для вступления в группы..",
     )
-    await callback.message.answer("Вот необходимые телеграм-ссылки:", reply_markup=keyboard)
+    await callback.message.answer("Для вступления в чат нажмите кнопку:", reply_markup=keyboard)
     await callback.answer()
