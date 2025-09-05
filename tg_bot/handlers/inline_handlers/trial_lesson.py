@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery
 
 from tg_bot.service.api_requests import find_user_in_django, get_location_info, get_user_trial_lessons
 from tg_bot.configs.logger_config import get_logger
+from tg_bot.configs.bot_messages import TRIAL_LESSON_CHECKING, TRIAL_LESSON_USER_ERROR, TRIAL_LESSON_NO_RECORDS
 
 logger = get_logger()
 
@@ -29,11 +30,11 @@ async def user_trial_handler(callback: CallbackQuery):
     user_id = callback.from_user.id
 
     try:
-        await callback.message.answer("⏳ Ожидайте пожалуйста, проверяю Ваше расписание..")
+        await callback.message.answer(TRIAL_LESSON_CHECKING)
 
         user_data = await find_user_in_django(user_id)
         if not user_data or not user_data.get("success"):
-            await callback.message.answer("❌ Ошибка: не удалось получить данные пользователя.")
+            await callback.message.answer(TRIAL_LESSON_USER_ERROR)
             await callback.answer()
             return
 
@@ -41,7 +42,7 @@ async def user_trial_handler(callback: CallbackQuery):
         clients = user.get("clients", [])
 
         if not clients:
-            await callback.message.answer("Мы не нашли Ваши записи в системе.")
+            await callback.message.answer(TRIAL_LESSON_NO_RECORDS)
             await callback.answer()
             return
 
@@ -50,13 +51,13 @@ async def user_trial_handler(callback: CallbackQuery):
             branch_id = client.get("branch_id")
 
             if not user_crm_id or not branch_id:
-                await callback.message.answer("❌ Ошибка: недостаточно данных для получения пробного занятия.")
+                await callback.message.answer(TRIAL_LESSON_INSUFFICIENT_DATA)
                 await callback.answer()
                 return
 
             lessons_data = await get_user_trial_lessons(user_crm_id, branch_id)
             if not lessons_data or lessons_data.get("total", 0) == 0:
-                await callback.message.answer("У вас нет запланированных пробных занятий.")
+                await callback.message.answer(TRIAL_LESSON_NO_PLANNED)
                 await callback.answer()
                 return
 
@@ -72,22 +73,24 @@ async def user_trial_handler(callback: CallbackQuery):
 
             location_info = await get_location_info(room_id)
             if not location_info:
-                lesson_address = "Адрес занятия неизвестен."
+                lesson_address = TRIAL_LESSON_UNKNOWN_ADDRESS
             else:
                 location_name = location_info.get("name", "Без названия")
                 location_map_link = location_info.get("map_url", "#")
                 lesson_address = f"{location_name}\n{location_map_link}"
 
             await callback.message.answer(
-                text=f"Вы записаны на пробное занятие:\n"
-                f"{lesson_day}: {lesson_time}\n"
-                f"Локация: {lesson_address}"
+                text=TRIAL_LESSON_INFO_TEMPLATE.format(
+                    day=lesson_day,
+                    time=lesson_time,
+                    address=lesson_address
+                )
             )
         await callback.answer()
 
     except Exception as e:
         logger.error(f"Ошибка при обработке запроса на пробное занятие: {e}")
-        await callback.message.answer("Произошла ошибка при обработке вашего запроса. Попробуйте позже.")
+        await callback.message.answer(TRIAL_LESSON_ERROR)
         await callback.answer()
     finally:
         await callback.answer()

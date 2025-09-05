@@ -5,6 +5,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from tg_bot.handlers.inline_handlers.main_menu import get_user_keyboard
 from tg_bot.service.api_requests import get_erip_payment_help, get_payment_data_from_api
 from tg_bot.configs.logger_config import get_logger
+from tg_bot.configs.bot_messages import ERIP_INSTRUCTION_UNAVAILABLE, ERIP_INSTRUCTION_TEMPLATE, ERIP_ERROR
 
 logger = get_logger()
 erip_router = Router()
@@ -17,20 +18,17 @@ async def process_button_erip_press(callback: CallbackQuery):
     """
     help_data = await get_erip_payment_help()
     if not help_data:
-        await callback.message.answer("⚠️Инструкция по оплате временно недоступна.")
+        await callback.message.answer(ERIP_INSTRUCTION_UNAVAILABLE)
         await callback.answer()
         return
 
     erip_link = help_data.get("erip_link", "")
     erip_instructions = help_data.get("erip_instructions", "")
 
-    formatted_text = f"""
-    <b>Инструкция по оплате через ЕРИП:</b>
-
-    {erip_instructions}
-
-    Для удобства вы можете перейти по ссылке: {erip_link}
-    """
+    formatted_text = ERIP_INSTRUCTION_TEMPLATE.format(
+        erip_instructions=erip_instructions,
+        erip_link=erip_link
+    )
     keyboard = InlineKeyboardBuilder()
     keyboard.button(text="<< Главное меню", callback_data="inline_main_menu")
     keyboard.adjust(1)
@@ -40,7 +38,7 @@ async def process_button_erip_press(callback: CallbackQuery):
         logger.info(f"Отправлено сообщение пользователю {callback.from_user.id} с инструкцией по оплате через ЕРИП.")
     except Exception as e:
         logger.error(f"Ошибка при отправке инструкции: {e}")
-        await callback.message.answer("Произошла ошибка при отправке инструкции.")
+        await callback.message.answer(ERIP_ERROR)
 
     finally:
         await callback.answer()

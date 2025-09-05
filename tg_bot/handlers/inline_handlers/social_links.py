@@ -3,6 +3,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMar
 
 from tg_bot.keyboards.inline_keyboards.inline_keyboard_links_menu import links_menu_inline
 from tg_bot.service.api_requests import get_social_links_from_api, get_user_tg_links_from_api
+from tg_bot.configs.bot_messages import TG_LINKS_PLACEHOLDER, TG_LINKS_MESSAGE, SOCIAL_LINKS_EMPTY, SOCIAL_LINKS_TITLE
 
 social_router = Router()
 
@@ -15,7 +16,7 @@ async def social_links_handler(callback: CallbackQuery):
     """
     links = await get_social_links_from_api()
     if not links:
-        await callback.message.answer("Список социальных ссылок пуст.")
+        await callback.message.answer(SOCIAL_LINKS_EMPTY)
         await callback.answer()
         return
 
@@ -28,7 +29,7 @@ async def social_links_handler(callback: CallbackQuery):
         + [[InlineKeyboardButton(text="<< Назад", callback_data="inline_main_menu")]]
     )
 
-    await callback.message.answer("Наши социальные сети:", reply_markup=keyboard)
+    await callback.message.answer(SOCIAL_LINKS_TITLE, reply_markup=keyboard)
     await callback.answer()
 
 
@@ -54,7 +55,7 @@ async def tg_links_handler(callback: CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[[button] for button in buttons],
         resize_keyboard=True,
-        input_field_placeholder="Перейдите по ссылкам для вступления в группы..",
+        input_field_placeholder=TG_LINKS_PLACEHOLDER,
     )
-    await callback.message.answer("Для вступления в чат нажмите кнопку:", reply_markup=keyboard)
+    await callback.message.answer(TG_LINKS_MESSAGE, reply_markup=keyboard)
     await callback.answer()

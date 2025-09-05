@@ -10,6 +10,7 @@ from tg_bot.keyboards.inline_keyboards.inline_keyboard_main_menu import (
     get_lead_without_group_keyboard,
 )
 from tg_bot.service.api_requests import find_user_in_django
+from tg_bot.configs.bot_messages import MAIN_MENU_NOT_REGISTERED, MAIN_MENU_TITLE
 
 
 logger = get_logger()
@@ -29,12 +30,10 @@ async def menu_handler(message: Message):
     keyboard = await get_user_keyboard(telegram_id)
 
     if not keyboard:
-        await message.answer(
-            "Вы не зарегистрированы в системе. Пожалуйста, начните с команды /start."
-        )
+        await message.answer(MAIN_MENU_NOT_REGISTERED)
         return
 
-    await message.answer("Вот мое меню 🤗:", reply_markup=keyboard)
+    await message.answer(MAIN_MENU_TITLE, reply_markup=keyboard)
 
 
 @main_menu_router.callback_query(F.data == "inline_main_menu")
@@ -44,11 +43,9 @@ async def main_menu_handler(callback: CallbackQuery):
     # Получаем клавиатуру пользователя
     keyboard = await get_user_keyboard(telegram_id)
     if not keyboard:
-        await callback.message.answer(
-            "Вы не зарегистрированы в системе. Пожалуйста, начните с команды /start."
-        )
+        await callback.message.answer(MAIN_MENU_NOT_REGISTERED)
         return
-    await callback.message.edit_text("Вот ваше главное меню:", reply_markup=keyboard)
+    await callback.message.edit_text(MAIN_MENU_EDIT_TITLE, reply_markup=keyboard)
     await callback.answer()
 
 

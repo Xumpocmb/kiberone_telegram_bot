@@ -5,6 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tg_bot.service.api_requests import get_bonus_by_id, get_client_bonuses
+from tg_bot.configs.bot_messages import BONUS_LIST_EMPTY, BONUS_LIST_TITLE, BONUS_NOT_FOUND, BONUS_INFO_TEMPLATE
 
 bonuses_router = Router()
 
@@ -17,7 +18,7 @@ async def bonuses_handler(callback: CallbackQuery):
     """
     bonuses = await get_client_bonuses()
     if not bonuses:
-        await callback.message.answer("Список бонусов пуст.")
+        await callback.message.answer(BONUS_LIST_EMPTY)
         await callback.answer()
         return
 
@@ -27,7 +28,7 @@ async def bonuses_handler(callback: CallbackQuery):
     keyboard.button(text="<< Главное меню", callback_data="inline_main_menu")
     keyboard.adjust(1)
 
-    await callback.message.edit_text("Ваши бонусы:", reply_markup=keyboard.as_markup())
+    await callback.message.edit_text(BONUS_LIST_TITLE, reply_markup=keyboard.as_markup())
     await callback.answer()
 
 
@@ -40,14 +41,14 @@ async def handle_bonus_selection(callback: CallbackQuery):
     bonus_id: str = str(callback.data.split("_")[-1])
     bonus = await get_bonus_by_id(bonus_id)
     if not bonus:
-        await callback.message.answer("Информация о бонусе не найдена.")
+        await callback.message.answer(BONUS_NOT_FOUND)
         await callback.answer()
         return
 
-    formatted_text = f"""
-    <b>Бонус:</b> {bonus['bonus']}
-    <b>Описание:</b> {bonus['description']}
-    """
+    formatted_text = BONUS_INFO_TEMPLATE.format(
+        bonus_name=bonus['bonus'],
+        bonus_description=bonus['description']
+    )
 
     keyboard = InlineKeyboardBuilder()
     keyboard.button(text="<< Назад", callback_data="client_bonuses")

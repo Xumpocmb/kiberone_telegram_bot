@@ -4,6 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from tg_bot.service.api_requests import get_all_questions, get_answer_by_question_id
 from tg_bot.handlers.inline_handlers.main_menu import get_user_keyboard
+from tg_bot.configs.bot_messages import FAQ_EMPTY, FAQ_SELECT, FAQ_ANSWER_NOT_FOUND
 
 faq_router = Router()
 
@@ -16,7 +17,7 @@ async def faq_handler(callback: CallbackQuery):
     """
     questions = await get_all_questions()
     if not questions:
-        await callback.message.answer("Список вопросов пуст.")
+        await callback.message.answer(FAQ_EMPTY)
         await callback.answer()  # Завершаем коллбэк
         return
 
@@ -29,7 +30,7 @@ async def faq_handler(callback: CallbackQuery):
     keyboard.button(text="<< Главное меню", callback_data="inline_main_menu")
     keyboard.adjust(1)
 
-    await callback.message.edit_text("Выберите вопрос:", reply_markup=keyboard.as_markup())
+    await callback.message.edit_text(FAQ_SELECT, reply_markup=keyboard.as_markup())
     await callback.answer()  # Завершаем коллбэк
 
 
@@ -42,7 +43,7 @@ async def handle_faq_question(callback: CallbackQuery):
     question_id = callback.data.split("_")[-1]
     answer_data = await get_answer_by_question_id(question_id)
     if not answer_data:
-        await callback.message.answer("Ошибка: ответ не найден.")
+        await callback.message.answer(FAQ_ANSWER_NOT_FOUND)
         return
 
     # Создаем клавиатуру с кнопкой "Назад"

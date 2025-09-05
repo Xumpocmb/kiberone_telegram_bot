@@ -6,6 +6,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tg_bot.service.api_requests import find_user_in_django, get_sales_managers, get_manager, \
     get_user_group_lessons
+from tg_bot.configs.bot_messages import (MANAGER_ERROR_USER_DATA, MANAGER_NO_RECORDS, 
+                                        MANAGER_INSUFFICIENT_DATA, MANAGER_ERROR_INFO,
+                                        MANAGER_NO_ASSIGNED_INTRO, MANAGER_NO_ASSIGNED,
+                                        MANAGER_SALES_MANAGER_WITH_TG, MANAGER_SALES_MANAGER_WITHOUT_TG,
+                                        MANAGER_INFO_TEMPLATE, MANAGER_ERROR_GENERAL)
 
 contact_manager_router = Router()
 
@@ -21,7 +26,7 @@ async def get_managers_handler(callback: CallbackQuery):
         # Получаем данные пользователя
         user_data = await find_user_in_django(telegram_id)
         if not user_data or not user_data.get("success"):
-            await callback.message.answer("❌ Не удалось получить ваши данные. Попробуйте позже.")
+            await callback.message.answer(MANAGER_ERROR_USER_DATA)
             await callback.answer()
             return
 
@@ -29,7 +34,7 @@ async def get_managers_handler(callback: CallbackQuery):
         clients = user.get("clients", [])
 
         if not clients:
-            await callback.message.answer("🔍 У нас нет ваших записей в системе. Начните с команды /start")
+            await callback.message.answer(MANAGER_NO_RECORDS)
             await callback.answer()
             return
 
@@ -39,7 +44,7 @@ async def get_managers_handler(callback: CallbackQuery):
             branch_id = client.get("branch_id")
 
             if not user_crm_id or not branch_id:
-                await callback.message.answer("⚠️ Недостаточно данных для поиска менеджера.")
+                await callback.message.answer(MANAGER_INSUFFICIENT_DATA)
                 await callback.answer()
                 return
 
@@ -52,7 +57,7 @@ async def get_managers_handler(callback: CallbackQuery):
             
             # Проверяем наличие ответа от API
             if not manager_info:
-                await callback.message.answer("⚠️ Не удалось получить информацию о менеджере. Попробуйте позже.", reply_markup=keyboard.as_markup())
+                await callback.message.answer(MANAGER_ERROR_INFO, reply_markup=keyboard.as_markup())
                 await callback.answer()
                 return
                 
@@ -93,22 +98,22 @@ async def get_managers_handler(callback: CallbackQuery):
                 sales_managers = await get_sales_managers()
                 
                 if sales_managers and len(sales_managers) > 0:
-                    message_text = "ℹ️ У вас нет назначенного менеджера. Вы можете связаться с любым из наших менеджеров:\n\n"
+                    message_text = MANAGER_NO_ASSIGNED_INTRO
                     
                     for manager in sales_managers:
                         name = manager.get("name", "Не указано")
                         telegram_link = manager.get("telegram_link", "")
                         
                         if telegram_link:
-                            message_text += f"👨‍💼 <b>{name}</b>: {telegram_link}\n"
+                            message_text += MANAGER_SALES_MANAGER_WITH_TG.format(name=name, telegram_link=telegram_link)
                         else:
-                            message_text += f"👨‍💼 <b>{name}</b>\n"
+                            message_text += MANAGER_SALES_MANAGER_WITHOUT_TG.format(name=name)
                     
                     await callback.message.answer(message_text, reply_markup=keyboard.as_markup())
                     await callback.answer()
                     return
                 else:
-                    await callback.message.answer("ℹ️ У вас нет назначенного менеджера.", reply_markup=keyboard.as_markup())
+                    await callback.message.answer(MANAGER_NO_ASSIGNED, reply_markup=keyboard.as_markup())
                     await callback.answer()
                     return
                 
@@ -117,13 +122,12 @@ async def get_managers_handler(callback: CallbackQuery):
             manager_tg = manager_data.get("custom_tg", "")
             manager_name = manager_data.get("name", "Не указано")
             
-            message_text = (f"👨‍💼 <b>Ваш менеджер:</b> {manager_name}\n"
-                    f"📱 <b>Телеграм:</b> {manager_tg}")
+            message_text = MANAGER_INFO_TEMPLATE.format(manager_name=manager_name, manager_tg=manager_tg)
 
         
             await callback.message.answer(message_text, reply_markup=keyboard.as_markup())
         await callback.answer()
 
     except Exception as e:
-        await callback.message.answer("⚠️ Произошла ошибка. Попробуйте позже.")
+        await callback.message.answer(MANAGER_ERROR_GENERAL)
         await callback.answer()

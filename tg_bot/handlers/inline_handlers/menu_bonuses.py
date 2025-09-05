@@ -5,6 +5,7 @@ from tg_bot.configs.logger_config import get_logger
 from tg_bot.keyboards.inline_keyboards.inline_keyboard_menu_bonuses import \
     get_clients_bonuses_menu_inline_for_lead_keyboard, get_clients_bonuses_menu_inline_keyboard
 from tg_bot.service.api_requests import find_user_in_django
+from tg_bot.configs.bot_messages import MENU_BONUSES_TITLE
 
 logger = get_logger()
 
@@ -28,7 +29,7 @@ async def send_menu_bonuses(callback_query: CallbackQuery):
     logger.info(f"Пользователь с ID {telegram_id} имеет статус: {user_status}")
 
     if user_status == "2":
-        await callback_query.message.edit_text("Бонусы для наших резидентов:", reply_markup=get_clients_bonuses_menu_inline_keyboard())
+        await callback_query.message.edit_text(MENU_BONUSES_TITLE, reply_markup=get_clients_bonuses_menu_inline_keyboard())
     else:
-        await callback_query.message.edit_text("Бонусы для наших резидентов:", reply_markup=get_clients_bonuses_menu_inline_for_lead_keyboard())
+        await callback_query.message.edit_text(MENU_BONUSES_TITLE, reply_markup=get_clients_bonuses_menu_inline_for_lead_keyboard())
     await callback_query.answer()

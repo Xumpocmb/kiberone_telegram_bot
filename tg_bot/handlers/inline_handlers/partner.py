@@ -10,6 +10,14 @@ from tg_bot.service.api_requests import (
     get_partner_categories,
     get_partners_by_category,
 )
+from tg_bot.configs.bot_messages import (
+    PARTNER_NOT_FOUND,
+    PARTNER_INFO_RESIDENTS_ONLY,
+    PARTNER_INFO_TEMPLATE,
+    PARTNER_INFO_WITH_CODE_TEMPLATE,
+    PARTNER_CATEGORIES_EMPTY,
+    PARTNER_SELECT_CATEGORY
+)
 
 
 partners_router = Router()
@@ -23,7 +31,7 @@ async def partners_handler(callback: CallbackQuery):
     """
     categories = await get_partner_categories()
     if not categories:
-        await callback.message.answer("Список категорий пуст.")
+        await callback.message.answer(PARTNER_CATEGORIES_EMPTY)
         await callback.answer()
         return
 
@@ -37,7 +45,7 @@ async def partners_handler(callback: CallbackQuery):
     keyboard.adjust(1)
 
     await callback.message.edit_text(
-        "Выберите категорию:", reply_markup=keyboard.as_markup()
+        PARTNER_SELECT_CATEGORY, reply_markup=keyboard.as_markup()
     )
     await callback.answer()
 
@@ -52,7 +60,7 @@ async def handle_category_selection(callback: CallbackQuery):
     category_id = callback.data.split("_")[-1]
     partners = await get_partners_by_category(category_id)
     if not partners:
-        await callback.message.answer("Список партнеров пуст.")
+        await callback.message.answer(PARTNER_LIST_EMPTY)
         await callback.answer()
         return
 
@@ -66,7 +74,7 @@ async def handle_category_selection(callback: CallbackQuery):
     keyboard.adjust(1)
 
     await callback.message.edit_text(
-        "Выберите партнера:", reply_markup=keyboard.as_markup()
+        PARTNER_SELECT, reply_markup=keyboard.as_markup()
     )
     await callback.answer()
 
@@ -80,7 +88,7 @@ async def handle_partner_selection(callback: CallbackQuery):
     partner_id = callback.data.split("_")[-1]
     partner = await get_partner_by_id(partner_id)
     if not partner:
-        await callback.message.answer("Информация о партнере не найдена.")
+        await callback.message.answer(PARTNER_NOT_FOUND)
         await callback.answer()
         return
 
@@ -89,25 +97,26 @@ async def handle_partner_selection(callback: CallbackQuery):
 
     if user_status == "2":
         if user_status != "2":  # Только клиенты получают промокод
-            formatted_text = f"""
-            <b>Партнер:</b> {partner['partner_name']}
-            <b>Описание:</b> {partner['description']}
-            """
+            formatted_text = PARTNER_INFO_TEMPLATE.format(
+                partner_name=partner['partner_name'],
+                partner_description=partner['description']
+            )
         else:
-            # Базовый текст с информацией о партнере
-            formatted_text = f"""
-            <b>Партнер:</b> {partner['partner_name']}
-            <b>Описание:</b> {partner['description']}
-            """
-            
-            # Добавляем промо-код только если он существует
+            # Проверяем наличие промо-кода
             if partner.get('code'):
-                formatted_text = formatted_text.rstrip() + f"""
-            <b>Промо-код:</b> {partner['code']}
-            """
+                formatted_text = PARTNER_INFO_WITH_CODE_TEMPLATE.format(
+                    partner_name=partner['partner_name'],
+                    partner_description=partner['description'],
+                    partner_code=partner['code']
+                )
+            else:
+                formatted_text = PARTNER_INFO_TEMPLATE.format(
+                    partner_name=partner['partner_name'],
+                    partner_description=partner['description']
+                )
             
     else:
-        formatted_text = "Информация доступна только резидентам!"
+        formatted_text = PARTNER_INFO_RESIDENTS_ONLY
 
     keyboard = InlineKeyboardBuilder()
     keyboard.button(
